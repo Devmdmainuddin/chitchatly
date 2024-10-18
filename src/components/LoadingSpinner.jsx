@@ -1,15 +1,16 @@
 import PropTypes from 'prop-types'
-import { ClimbingBoxLoader, PulseLoader } from 'react-spinners'
+import {  FadeLoader,  } from 'react-spinners'
 const LoadingSpinner = ({ smallHeight }) => {
     return (
         <div
-            className={` ${smallHeight ? 'h-[250px]' : 'h-[70vh]'}
+            className={` ${smallHeight ? 'h-[250px]' : 'h-[100vh]'}
           flex 
           flex-col 
           justify-center 
           items-center `}
         >
-            <ClimbingBoxLoader size={100} color='red' />
+            {/* PulseLoader */}
+            <FadeLoader size={100} color='red' />
         </div>
     )
 };

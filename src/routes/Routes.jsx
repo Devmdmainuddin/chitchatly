@@ -5,7 +5,7 @@ import Layout from "../layout/Layout";
 import Home from "../pages/Home";
 import Login from "../pages/Login";
 import Registation from "../pages/Registation";
-// import PrivateRoute from "./PrivateRoute";
+import PrivateRoute from "./PrivateRoute";
 
   const router = createBrowserRouter([
     {
@@ -13,7 +13,7 @@ import Registation from "../pages/Registation";
       element: <Layout></Layout>,children: [
         {
           path: "/",
-          element:<Home /> ,
+          element:<PrivateRoute><Home /> </PrivateRoute> ,
         },
         {
             path: "/login",

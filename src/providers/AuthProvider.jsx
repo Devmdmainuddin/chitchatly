@@ -384,7 +384,7 @@ const signIn = async (email, password) => {
       // const userEmail = currentUser?.email || user?.email;
       // const loggedUser = { email: userEmail }
       setUser(currentUser)
-
+      setLoading(false); 
       // if (currentUser) {
         
       //   axiosCommon.post(`/jwt`, loggedUser)
