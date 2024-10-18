@@ -14,12 +14,16 @@ import {
   EmailAuthProvider,
    reauthenticateWithCredential
 } from 'firebase/auth'
+import { getDatabase, ref, set,onValue, push, } from "firebase/database";
+
 import { app } from '../firebase/firebase.config'
 import useAxiosCommon from '../hooks/useAxiosCommon';
+import Swal from 'sweetalert2';
 
 
 export const AuthContext = createContext(null)
 const auth = getAuth(app)
+const db = getDatabase();
 const googleProvider = new GoogleAuthProvider()
 
 const AuthProvider = ({ children }) => {
@@ -27,21 +31,71 @@ const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true)
   const axiosCommon = useAxiosCommon()
 
-const createUser = async (email, password) => {
+  
+// ............
+
+// const starCountRef = ref(db, 'posts/' + postId + '/starCount');
+// onValue(starCountRef, (snapshot) => {
+//   const data = snapshot.val();
+//   updateStarCount(postElement, data);
+// });
+
+
+
+
+
+const createUser = async (name,email, password) => {
     setLoading(true);
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      setUser(userCredential.user);
+      const user = userCredential.user;
+      set(ref(db, 'users/' + user.uid), {
+        username: name,
+        email: email,
+        userId:user.uid,
+        password:password,
+        timestamp: Date.now()
+      });
+
+      setUser(user);
     } catch (error) {
       const errorCode = error.code;
       if (errorCode.includes('auth/email-already-in-use')) {
-        console.error('Email is already in use.');
+       
+        Swal.fire({
+          position: "top-end",
+          icon: "error",
+          title: "Email is already in use.",
+          showConfirmButton: false,
+          timer: 1500
+        });
       } else if (errorCode.includes('auth/invalid-email')) {
-        console.error('Invalid email.');
+       
+        Swal.fire({
+          position: "top-end",
+          icon: "error",
+          title: "Invalid email.",
+          showConfirmButton: false,
+          timer: 1500
+        });
       } else if (errorCode.includes('auth/weak-password')) {
-        console.error('Weak password.');
+       
+        Swal.fire({
+          position: "top-end",
+          icon: "error",
+          title: "Weak password.",
+          showConfirmButton: false,
+          timer: 1500
+        });
       } else {
-        console.error('Error creating user:', error.message);
+       
+        Swal.fire({
+          position: "top-end",
+          icon: "error",
+          title: "Error creating user !",
+          showConfirmButton: false,
+          timer: 1500
+        });
       }
     } finally {
       setLoading(false);
@@ -57,11 +111,32 @@ const signIn = async (email, password) => {
     } catch (error) {
       const errorCode = error.code;
       if (errorCode.includes('auth/wrong-password')) {
-        console.error('Incorrect password. Please try again.');
+       
+        Swal.fire({
+          position: "top-end",
+          icon: "error",
+          title: "Incorrect password. Please try again.",
+          showConfirmButton: false,
+          timer: 1500
+        });
       } else if (errorCode.includes('auth/user-not-found')) {
-        console.error('No user found with this email.');
+        
+        Swal.fire({
+          position: "top-end",
+          icon: "error",
+          title: "No user found with this email.",
+          showConfirmButton: false,
+          timer: 1500
+        });
       } else {
-        console.error('Error during sign in:', error.message);
+      
+        Swal.fire({
+          position: "top-end",
+          icon: "error",
+          title: "Error during sign in",
+          showConfirmButton: false,
+          timer: 1500
+        });
       }
       throw error; 
     } finally {
@@ -81,13 +156,41 @@ const signIn = async (email, password) => {
   
       // Handle specific Google sign-in errors
       if (errorCode.includes('auth/popup-closed-by-user')) {
-        console.error('Google sign-in popup closed by user. Please try again.');
+       
+        Swal.fire({
+          position: "top-end",
+          icon: "error",
+          title: "Google sign-in popup closed by user. Please try again.",
+          showConfirmButton: false,
+          timer: 1500
+        });
       } else if (errorCode.includes('auth/cancelled-popup-request')) {
-        console.error('Popup was closed due to a new request. Please try again.');
+        
+        Swal.fire({
+          position: "top-end",
+          icon: "error",
+          title: "Popup was closed due to a new request. Please try again.",
+          showConfirmButton: false,
+          timer: 1500
+        });
       } else if (errorCode.includes('auth/network-request-failed')) {
-        console.error('Network error. Please check your internet connection and try again.');
+       
+        Swal.fire({
+          position: "top-end",
+          icon: "error",
+          title: "Network error. Please check your internet connection and try again.",
+          showConfirmButton: false,
+          timer: 1500
+        });
       } else {
-        console.error('Google sign-in failed:', error.message);
+       
+        Swal.fire({
+          position: "top-end",
+          icon: "error",
+          title: "Google sign-in failed !",
+          showConfirmButton: false,
+          timer: 1500
+        });
       }
   
       throw error; 
@@ -99,7 +202,14 @@ const signIn = async (email, password) => {
     const currentUser = auth.currentUser; // Get the current user
   
     if (!currentUser) {
-      // toast.error('No user is currently signed in.');
+      
+      Swal.fire({
+        position: "top-end",
+        icon: "error",
+        title: "No user is currently signed in.",
+        showConfirmButton: false,
+        timer: 1500
+      });
       return;
     }
   
@@ -113,21 +223,42 @@ const signIn = async (email, password) => {
       await updatePassword(currentUser, password);
   
       // Show success message with SweetAlert
-      // Swal.fire({
-      //   position: "top-end",
-      //   icon: "success",
-      //   title: "Your password has been updated",
-      //   showConfirmButton: false,
-      //   timer: 1500,
-      // });
+      Swal.fire({
+        position: "top-end",
+        icon: "success",
+        title: "Your password has been updated",
+        showConfirmButton: false,
+        timer: 1500,
+      });
     } catch (error) {
       // Handle errors and display appropriate error messages
       if (error.code === 'auth/wrong-password') {
-        // toast.error('The current password is incorrect. Please try again.');
+       
+        Swal.fire({
+          position: "top-end",
+          icon: "error",
+          title: "The current password is incorrect. Please try again.",
+          showConfirmButton: false,
+          timer: 1500
+        });
       } else if (error.code === 'auth/weak-password') {
-        // toast.error('The new password is too weak. Please choose a stronger one.');
+       
+        Swal.fire({
+          position: "top-end",
+          icon: "error",
+          title: "The new password is too weak. Please choose a stronger one.",
+          showConfirmButton: false,
+          timer: 1500
+        });
       } else {
-        // toast.error(error.message || 'An error occurred while updating the password.');
+        
+        Swal.fire({
+          position: "top-end",
+          icon: "error",
+          title: "An error occurred while updating the password.",
+          showConfirmButton: false,
+          timer: 1500
+        });
       }
     }
   };
@@ -138,37 +269,63 @@ const signIn = async (email, password) => {
       await sendPasswordResetEmail(auth, email);
       
       // Display success message
-      // Swal.fire({
-      //   position: 'top-end',
-      //   icon: 'success',
-      //   title: `Password reset email sent to ${email}. Please check your inbox.`,
-      //   showConfirmButton: false,
-      //   timer: 2000,
-      // });
+      Swal.fire({
+        position: 'top-end',
+        icon: 'success',
+        title: `Password reset email sent to ${email}. Please check your inbox.`,
+        showConfirmButton: false,
+        timer: 2000,
+      });
     } catch (error) {
       // Handle errors
       if (error.code === 'auth/user-not-found') {
-        // toast.error('No user found with this email. Please check the email address.');
+        
+        Swal.fire({
+          position: "top-end",
+          icon: "error",
+          title: "No user found with this email. Please check the email address.",
+          showConfirmButton: false,
+          timer: 1500
+        });
       } else if (error.code === 'auth/invalid-email') {
-        // toast.error('Invalid email format. Please provide a valid email address.');
+       
+        Swal.fire({
+          position: "top-end",
+          icon: "error",
+          title: "Invalid email format. Please provide a valid email address.",
+          showConfirmButton: false,
+          timer: 1500
+        });
       } else {
-        // toast.error(error.message || 'An error occurred while sending the password reset email.');
+       
+        Swal.fire({
+          position: "top-end",
+          icon: "error",
+          title: "An error occurred while sending the password reset email.",
+          showConfirmButton: false,
+          timer: 1500
+        });
       }
     } finally {
       setLoading(false); // Stop loading regardless of success or failure
     }
   };
   const logOut = async () => {
-    setLoading(true); // Start loading
+    setLoading(true); 
   
     try {
-      await signOut(auth); // Sign out the user from Firebase
-      setUser(null); // Reset user state upon successful sign-out
+      await signOut(auth); 
+      setUser(null); 
       console.log('User successfully logged out.');
     } catch (error) {
-      console.error('Error logging out:', error.message);
-      // Optionally, you can show a toast or alert to the user
-      // toast.error('Failed to log out. Please try again.');
+      
+      Swal.fire({
+				position: "top-end",
+				icon: "error",
+				title: "Failed to log out. Please try again.",
+				showConfirmButton: false,
+				timer: 1500
+			});
     } finally {
       setLoading(false); // Stop loading, whether success or failure
     }
@@ -178,6 +335,13 @@ const signIn = async (email, password) => {
   
     if (!currentUser) {
       // toast.error('No user is currently signed in.');
+      Swal.fire({
+				position: "top-end",
+				icon: "error",
+				title: "No user is currently signed in.",
+				showConfirmButton: false,
+				timer: 1500
+			});
       return;
     }
   
@@ -196,39 +360,44 @@ const signIn = async (email, password) => {
       });
   
       // Provide feedback to the user
-      // Swal.fire({
-      //   position: 'top-end',
-      //   icon: 'success',
-      //   title: 'Profile updated successfully',
-      //   showConfirmButton: false,
-      //   timer: 1500,
-      // });
+      Swal.fire({
+        position: 'top-end',
+        icon: 'success',
+        title: 'Profile updated successfully',
+        showConfirmButton: false,
+        timer: 1500,
+      });
     } catch (error) {
-      // Handle any errors that occur during profile update
-      console.error('Error updating profile:', error.message);
-      // toast.error('Failed to update profile. Please try again.');
+  
+      Swal.fire({
+				position: "top-end",
+				icon: "error",
+				title: "Failed to update profile. Please try again.",
+				showConfirmButton: false,
+				timer: 1500
+			});
     }
   };
 
   useEffect(() => {
     const unSubscribe = onAuthStateChanged(auth, currentUser => {
-      const userEmail = currentUser?.email || user?.email;
-      const loggedUser = { email: userEmail }
+      // const userEmail = currentUser?.email || user?.email;
+      // const loggedUser = { email: userEmail }
       setUser(currentUser)
 
-      if (currentUser) {
-        // saveUser(currentUser)
-        axiosCommon.post(`/jwt`, loggedUser)
-          .then(res => {
-            if (res.data.token) {
-              localStorage.setItem('access-token', res.data.token)
-              setLoading(false)
-            }
-          })
-      } else {
-        localStorage.removeItem('access-token')
-        setLoading(false)
-      }
+      // if (currentUser) {
+        
+      //   axiosCommon.post(`/jwt`, loggedUser)
+      //     .then(res => {
+      //       if (res.data.token) {
+      //         localStorage.setItem('access-token', res.data.token)
+      //         setLoading(false)
+      //       }
+      //     })
+      // } else {
+      //   localStorage.removeItem('access-token')
+      //   setLoading(false)
+      // }
 
   })
     return () => {
