@@ -1,72 +1,28 @@
 import {  useState } from "react";
-import useAuth from "../hooks/useAuth";
-// import { getDatabase, ref, child,  onValue, off } from "firebase/database";
-// import Swal from "sweetalert2";
 import { Link } from "react-router-dom";
 import { LuContact2, LuPhoneCall } from "react-icons/lu";
 import { AiTwotoneMessage } from "react-icons/ai";
 import { IoPowerSharp, IoSearch } from "react-icons/io5";
 import { CgProfile } from "react-icons/cg";
-import { IoMdNotificationsOutline } from "react-icons/io";
+import { IoIosMenu, IoMdNotificationsOutline } from "react-icons/io";
 const Home = () => {
-    // const { user } = useAuth()
-// const [userData,setUserData] =useState([])
+
 const [show,setShow] = useState(false)
-// console.log(user,userData );
-
-
-// useEffect(() => {
-//     const dbRef = ref(getDatabase());
-//     const userRef = child(dbRef, `users/${user?.uid}`);
-    
-//     // Listener function to handle snapshot data
-//     const onValueChange = onValue(userRef, (snapshot) => {
-//       if (snapshot.exists()) {
-//         setUserData(snapshot.val());
-//         console.log(snapshot.val());
-//       } else {
-//         // Swal.fire({
-//         //   position: "top-end",
-//         //   icon: "error",
-//         //   title: "No data available!",
-//         //   showConfirmButton: false,
-//         //   timer: 1500,
-//         // });
-//       }
-//     });
-
-   
-//     return () => {
-//       off(userRef, onValueChange); 
-//     };
-// }, [user?.uid]); 
+const [isHide,setIsHide] = useState(true)
 
     return (
         <div className="overflow-hidden">
            <nav className="border-b">
-            <div className="flex items-center justify-between py-4 px-6 overflow-x-hiddenhidden relative">
+            <div className="flex items-center justify-between py-4 px-6  relative">
                 <h1 className="text-2xl font-bold">Chitchatly</h1>
-                <div className="flex items-center space-x-2">
-                    <Link to="/profile">
-                        <a className="w-[24px] h-[24px] text-lg"/>
-                    </Link>
-                    <a href="/">
-                        <LuContact2 className="w-[24px] h-[24px] text-lg"/>
-                    </a>
-                    <a href="/">
-                        <LuPhoneCall className="w-[24px] h-[24px] text-lg"/>
-                    </a>
-                    <a href="/">
-                        <AiTwotoneMessage className="w-[24px] h-[24px] text-lg"/>
-                    </a>
+                <div onClick={()=>setIsHide(!isHide)} className="md:hidden"><span><IoIosMenu /></span></div>
+                <div className="flex items-center w-1/3">
+                    <input type="text" name="" id=""  placeholder=" Search a Friend" className="min-w-[220px] w-full border outline-0 py-2 px-3"/>
                 </div>
                 <div onClick={()=>setShow(!show)} className="logo">
                         <button><img src="/user.png" alt=""  className="w-12 h-12 rounded-full"/> </button>    
                 </div>
-{/* className={`bg-[#f7f7f8] h-screen min-w-[260px] py-6 px-4 font-[sans-serif] flex flex-col overflow-auto absolute top-16 right-0 transition-all duration-500 ${show ? 'translate-x-0' : 'translate-x-full'}`} */}
-{/*    className={`bg-[#f7f7f8] h-screen  min-w-[260px] py-6 px-4 font-[sans-serif] flex flex-col overflow-auto absolute top-full  transition-all duration-500  ${show ? 'right-6' : '-right-full'}`}    */}
-                {/* <div className={`bg-[#f7f7f8] h-screen min-w-[260px] py-6 px-4 font-[sans-serif] flex flex-col  absolute top-full  right-full  transition-transform  duration-500 ease-in-out ${show ? 'translate-x-full' : ''}`} >
-                     */}
+
                      <div
                         className={`bg-[#f7f7f8] h-screen min-w-[260px] py-6 px-4 font-[sans-serif] flex flex-col absolute top-full right-0 transition-transform duration-500 ease-in-out ${show ? 'translate-x-0' : 'translate-x-full'}`}
                         style={{ transform: `translateX(${show ? '0' : '100%'})`, zIndex: 100 }}
@@ -122,9 +78,13 @@ const [show,setShow] = useState(false)
 
 */}
 
-            <div className="w-[1200px flex gap-6">
-                {/* fixed top-0 left-0 */}
-                <aside className="bg-[#f7f7f8] h-screen  min-w-[260px] py-6 px-4 font-[sans-serif] flex flex-col overflow-auto">
+            <div className="w-[1200px flex  relative">
+         
+            <aside className={`bg-[#f7f7f8] h-screen min-w-[260px] py-6 px-4 font-[sans-serif] flex flex-col fixed top-[87px] md:top-0 left-0 transition-all duration-500 ${
+                    isHide ? '-left-full' : 'left-0'
+                } md:relative md:left-0`}
+            >
+
                    <div className="flex justify-between items-center">
                    <h2 className="text-2xl capitalize">contact</h2> <button><IoSearch className=" text-2xl mr-4"/></button>
                     </div> 
@@ -168,7 +128,7 @@ const [show,setShow] = useState(false)
                         
                     </ul>
                 </aside>
-                <main className=" w-[calc(100vw-260px)]">
+                <main className="w-full md:w-[calc(100vw-260px)] h-screen bg-red-100">
                     <div>
                         <h2>home page</h2>
                         {/* name:{userData?.username}<br></br>
