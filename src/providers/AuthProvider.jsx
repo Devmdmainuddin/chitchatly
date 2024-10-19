@@ -15,12 +15,12 @@ import {
   sendEmailVerification,
    reauthenticateWithCredential
 } from 'firebase/auth'
-import { getDatabase, ref, set,onValue, push, } from "firebase/database";
+import { getDatabase, ref, set } from "firebase/database";
 
 import { app } from '../firebase/firebase.config'
-import useAxiosCommon from '../hooks/useAxiosCommon';
+// import useAxiosCommon from '../hooks/useAxiosCommon';
 import Swal from 'sweetalert2';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { userLoginInfo } from '../Featured/slices/Userslice';
 
 
@@ -35,7 +35,7 @@ const googleProvider = new GoogleAuthProvider()
 const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
-  const axiosCommon = useAxiosCommon()
+  // const axiosCommon = useAxiosCommon()
  
   let dispatch = useDispatch();
 // ............
@@ -343,7 +343,7 @@ const signIn = async (email, password) => {
       setUser(null); 
       console.log('User successfully logged out.');
     } catch (error) {
-      
+      console.log(error.message);
       Swal.fire({
 				position: "top-end",
 				icon: "error",
@@ -374,14 +374,14 @@ const signIn = async (email, password) => {
       // Update the user's display name and photo URL
       await updateProfile(currentUser, {
         displayName: name,
-        // photoURL: photo,
+        photoURL: photo,
       });
   
       // Optionally, update the user state if needed
       setUser({
-        ...currentUser, // Retain other properties
+        ...currentUser, 
         displayName: name,
-        // photoURL: photo,
+        photoURL: photo,
       });
   
       // Provide feedback to the user
@@ -393,7 +393,7 @@ const signIn = async (email, password) => {
         timer: 1500,
       });
     } catch (error) {
-  
+  console.log(error.message);
       Swal.fire({
 				position: "top-end",
 				icon: "error",
@@ -410,29 +410,23 @@ const signIn = async (email, password) => {
       // const loggedUser = { email: userEmail }
       setUser(currentUser)
       setLoading(false); 
-      if(currentUser.emailVerified){
-      dispatch(userLoginInfo(user));
-      localStorage.setItem("users", JSON.stringify(currentUser));
+      if (currentUser?.emailVerified) {
+        const userPayload = {
+          email: currentUser.email,
+          displayName: currentUser.displayName,
+          uid: currentUser.uid,
+        };
+        dispatch(userLoginInfo(userPayload));
+        localStorage.setItem("users", JSON.stringify(userPayload));
+      } else {
+        localStorage.removeItem("users");
       }
-      // if (currentUser) {
-        
-      //   axiosCommon.post(`/jwt`, loggedUser)
-      //     .then(res => {
-      //       if (res.data.token) {
-      //         localStorage.setItem('access-token', res.data.token)
-      //         setLoading(false)
-      //       }
-      //     })
-      // } else {
-      //   localStorage.removeItem('access-token')
-      //   setLoading(false)
-      // }
-
+    
   })
     return () => {
       unSubscribe();
     }
-  }, [axiosCommon,user])
+  }, [dispatch,user])
 
   const authinfo = {
     createUser,

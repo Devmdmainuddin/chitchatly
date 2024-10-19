@@ -19,6 +19,8 @@ import {
     ref as Ref,
     uploadBytesResumable,
 } from "firebase/storage";
+import FriendRequest from "../components/FriendRequest";
+import FriendGropup from "../components/FriendGropup";
 
 
 const Home = () => {
@@ -367,7 +369,8 @@ const Home = () => {
                 <aside className={`bg-[#f7f7f8]  min-w-[260px] py-6 px-4 font-[sans-serif] flex flex-col fixed top-[87px] md:top-0  transition-all duration-500 ${isHide ? '-left-full' : 'left-0'
                     } md:relative md:left-0`}
                 >
-
+                     <FriendRequest />
+<FriendGropup></FriendGropup>
                     <div className="flex justify-between items-center">
                         <h2 className="text-2xl capitalize">contact</h2> <button><IoSearch className=" text-2xl mr-4" /></button>
                     </div>
@@ -412,7 +415,7 @@ const Home = () => {
                     </ul>
                 </aside>
                 <main className="w-full md:w-[calc(100vw-260px)] h-screen   bg-[url('/bg-o.svg')] bg-cover bg-no-repeat flex flex-col justify-end">
-                    <div className="text-white overflow-y-scroll">
+                    <div className="text-white flex-1 overflow-y-scroll">
                         <h2>home page</h2>
                         <h1>User Messages</h1>
                         <ul className="">
