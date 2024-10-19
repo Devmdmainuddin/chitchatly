@@ -12,6 +12,7 @@ import {
   updateProfile,
   updatePassword,
   EmailAuthProvider,
+  sendEmailVerification,
    reauthenticateWithCredential
 } from 'firebase/auth'
 import { getDatabase, ref, set,onValue, push, } from "firebase/database";
@@ -47,17 +48,46 @@ const AuthProvider = ({ children }) => {
 const createUser = async (name,email, password) => {
     setLoading(true);
     try {
+
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
-      set(ref(db, 'users/' + user.uid), {
-        username: name,
-        email: email,
-        userId:user.uid,
-        password:password,
-        timestamp: Date.now()
-      });
 
-      setUser(user);
+      updateProfile(user,{
+        displayName: name,
+        timestamp: Date.now()
+      })
+      .then(() => {
+        console.log(user);
+        sendEmailVerification(auth.currentUser,{
+          url: 'http://localhost:5173/login',
+          handleCodeInApp: true,
+        })
+          .then(() => {
+            console.log(user);
+            Swal.fire({
+              position: "top-end",
+              icon: "success",
+              title: "Verification Code Send Succesfully",
+              showConfirmButton: false,
+              timer: 1500,
+            });
+            setLoading(false);
+          })
+          .then(() => {
+            console.log(user);
+            set(ref(db, 'users/' + user.uid), {
+              username: name,
+              email: email,
+              userId:user.uid,
+              password:password,
+              timestamp: Date.now()
+            });
+          })
+          .catch(() => {
+           
+          });
+      });
+      // setUser(user);
     } catch (error) {
       const errorCode = error.code;
       if (errorCode.includes('auth/email-already-in-use')) {
@@ -349,14 +379,14 @@ const signIn = async (email, password) => {
       // Update the user's display name and photo URL
       await updateProfile(currentUser, {
         displayName: name,
-        photoURL: photo,
+        // photoURL: photo,
       });
   
       // Optionally, update the user state if needed
       setUser({
         ...currentUser, // Retain other properties
         displayName: name,
-        photoURL: photo,
+        // photoURL: photo,
       });
   
       // Provide feedback to the user
@@ -385,6 +415,11 @@ const signIn = async (email, password) => {
       // const loggedUser = { email: userEmail }
       setUser(currentUser)
       setLoading(false); 
+      // if(currentUser.emailVerified){
+      //   setVerify(true);
+      // dispatch(userLoginInfo(user));
+      // localStorage.setItem("userInfo", JSON.stringify(user));
+      // }
       // if (currentUser) {
         
       //   axiosCommon.post(`/jwt`, loggedUser)

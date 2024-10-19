@@ -14,12 +14,14 @@ const Registation = () => {
     // const dispatch = useDispatch();
     // const[AddUser]=useAddUserMutation();
     const [showpassword, setshowpassword] = useState(null)
-    const navigate = useNavigate()
+    const [loginLoading, setLoginLoading] = useState(false);
+    const [initialLoading, setInitialLoading] = useState(false);
+    // const navigate = useNavigate()
     const { createUser } = useAuth()
 
     const handleSubmit = async e => {
         e.preventDefault()
-
+        setLoginLoading(true);
         const form = e.target
       
         const name = form.name.value
@@ -130,7 +132,7 @@ const Registation = () => {
 
         try {
              await createUser(name,email, password)
-            navigate('/')
+            // navigate('/')
         }
         catch (error) {
           console.log(error.message);
