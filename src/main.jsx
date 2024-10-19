@@ -8,6 +8,8 @@ import {
   RouterProvider,
 } from "react-router-dom";
 import router from './routes/Routes.jsx';
+import { Provider } from 'react-redux';
+import store from './Featured/store/store.js';
 
 
 
@@ -15,10 +17,13 @@ import router from './routes/Routes.jsx';
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <AuthProvider>
+     <Provider store={store}>
+     <AuthProvider>
     <RouterProvider router={router} />
     {/* <App /> */}
     </AuthProvider>
+     </Provider>
+ 
    
   </StrictMode>,
 )

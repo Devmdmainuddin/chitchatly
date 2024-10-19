@@ -20,30 +20,25 @@ import { getDatabase, ref, set,onValue, push, } from "firebase/database";
 import { app } from '../firebase/firebase.config'
 import useAxiosCommon from '../hooks/useAxiosCommon';
 import Swal from 'sweetalert2';
+import { useDispatch, useSelector } from 'react-redux';
+import { userLoginInfo } from '../Featured/slices/Userslice';
 
 
 export const AuthContext = createContext(null)
+
 const auth = getAuth(app)
+
 const db = getDatabase();
+
 const googleProvider = new GoogleAuthProvider()
 
 const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
   const axiosCommon = useAxiosCommon()
-
-  
+ 
+  let dispatch = useDispatch();
 // ............
-
-// const starCountRef = ref(db, 'posts/' + postId + '/starCount');
-// onValue(starCountRef, (snapshot) => {
-//   const data = snapshot.val();
-//   updateStarCount(postElement, data);
-// });
-
-
-
-
 
 const createUser = async (name,email, password) => {
     setLoading(true);
@@ -415,11 +410,10 @@ const signIn = async (email, password) => {
       // const loggedUser = { email: userEmail }
       setUser(currentUser)
       setLoading(false); 
-      // if(currentUser.emailVerified){
-      //   setVerify(true);
-      // dispatch(userLoginInfo(user));
-      // localStorage.setItem("userInfo", JSON.stringify(user));
-      // }
+      if(currentUser.emailVerified){
+      dispatch(userLoginInfo(user));
+      localStorage.setItem("users", JSON.stringify(currentUser));
+      }
       // if (currentUser) {
         
       //   axiosCommon.post(`/jwt`, loggedUser)
