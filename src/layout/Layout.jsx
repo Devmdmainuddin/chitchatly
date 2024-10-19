@@ -1,4 +1,5 @@
 import { Outlet } from "react-router-dom";
+import Navbar from "../components/Navbar";
 // import useAuth from "../hooks/useAuth";
 // import Home from "../pages/Home";
 // import Login from "../pages/Login";
@@ -11,6 +12,7 @@ const Layout = () => {
     // }
     return (
         <div>
+            <Navbar></Navbar>
             <Outlet></Outlet>
             {/* {user?<Home />:<Login /> } */}
         </div>
