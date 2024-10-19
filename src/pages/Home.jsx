@@ -11,8 +11,6 @@ import { equalTo, getDatabase, limitToLast, onValue, orderByChild, push, query, 
 import Swal from "sweetalert2";
 import { CiEdit } from "react-icons/ci";
 import { RiChatDeleteFill } from "react-icons/ri";
-// import { FaRecordVinyl } from "react-icons/fa";
-
 import {
     getDownloadURL,
     getStorage,
@@ -21,6 +19,9 @@ import {
 } from "firebase/storage";
 import FriendRequest from "../components/FriendRequest";
 import FriendGropup from "../components/FriendGropup";
+import Friends from "../components/Friends";
+import Userlist from "../components/Userlist";
+import BlockUser from "../components/BlockUser";
 
 
 const Home = () => {
@@ -150,13 +151,13 @@ const Home = () => {
         // Cleanup subscription on unmount
         return () => unsubscribe();
 
-    }, [user.uid]);
+    }, [user.uid, db]);
 
 
     // Function to handle message editing
     const handleEdit = (msg) => {
-        setSms(msg.message); 
-        setEditId(msg.id); 
+        setSms(msg.message);
+        setEditId(msg.id);
     };
 
     //    const handleUpdate = () => {
@@ -287,7 +288,7 @@ const Home = () => {
                         // message: sms,
                         image: url,
                         date: new Date().toISOString()
-                        
+
                     }).then(() => {
                         setSms("");
 
@@ -365,54 +366,15 @@ const Home = () => {
             </nav>
 
             <div className="w-[1200px flex  relative">
-{/* md:h-[calc(100vh-87px)] */}
+                {/* md:h-[calc(100vh-87px)] */}
                 <aside className={`bg-[#f7f7f8]  min-w-[260px] py-6 px-4 font-[sans-serif] flex flex-col fixed top-[87px] md:top-0  transition-all duration-500 ${isHide ? '-left-full' : 'left-0'
                     } md:relative md:left-0`}
                 >
-                     <FriendRequest />
-<FriendGropup></FriendGropup>
-                    <div className="flex justify-between items-center">
-                        <h2 className="text-2xl capitalize">contact</h2> <button><IoSearch className=" text-2xl mr-4" /></button>
-                    </div>
-                    <ul className="space-y-3 flex-1 mt-6">
-                        <li>
-                            <Link className="text-black hover:text-[#077fbb] text-sm flex items-center gap-3 hover:bg-gray-200 rounded px-4 py-3 transition-all relative">
-                                <img src="/user.png" alt="" className="w-8 h-8 rounded-full " />
-                                <span>md.main uddin</span>
-                            </Link>
-                        </li>
-                        <li>
-                            <Link className="text-black hover:text-[#077fbb] text-sm flex items-center gap-3 hover:bg-gray-200 rounded px-4 py-3 transition-all relative">
-                                <img src="/user.png" alt="" className="w-8 h-8 rounded-full " />
-                                <span>md.main uddin</span>
-                            </Link>
-                        </li>
-                        <li>
-                            <Link className="text-black hover:text-[#077fbb] text-sm flex items-center gap-3 hover:bg-gray-200 rounded px-4 py-3 transition-all relative">
-                                <img src="/user.png" alt="" className="w-8 h-8 rounded-full " />
-                                <span>md.main uddin</span>
-                            </Link>
-                        </li>
-                        <li>
-                            <Link className="text-black hover:text-[#077fbb] text-sm flex items-center gap-3 hover:bg-gray-200 rounded px-4 py-3 transition-all relative">
-                                <img src="/user.png" alt="" className="w-8 h-8 rounded-full " />
-                                <span>md.main uddin</span>
-                            </Link>
-                        </li>
-                        <li>
-                            <Link className="text-black hover:text-[#077fbb] text-sm flex items-center gap-3 hover:bg-gray-200 rounded px-4 py-3 transition-all relative">
-                                <img src="/user.png" alt="" className="w-8 h-8 rounded-full " />
-                                <span>md.main uddin</span>
-                            </Link>
-                        </li>
-                        <li>
-                            <Link className="text-black hover:text-[#077fbb] text-sm flex items-center gap-3 hover:bg-gray-200 rounded px-4 py-3 transition-all relative">
-                                <img src="/user.png" alt="" className="w-8 h-8 rounded-full " />
-                                <span>md.main uddin</span>
-                            </Link>
-                        </li>
-
-                    </ul>
+                    <FriendRequest />
+                    <FriendGropup/>
+                    <Friends/>
+                    <Userlist />
+                    <BlockUser />
                 </aside>
                 <main className="w-full md:w-[calc(100vw-260px)] h-screen   bg-[url('/bg-o.svg')] bg-cover bg-no-repeat flex flex-col justify-end">
                     <div className="text-white flex-1 overflow-y-scroll">
@@ -454,7 +416,7 @@ const Home = () => {
 
 
                             <div>
-                            {imageURL && <img src={imageURL} alt="Uploaded"  className="w-12 h-12 object-cover"/>}
+                                {imageURL && <img src={imageURL} alt="Uploaded" className="w-12 h-12 object-cover" />}
 
                                 <br />
 
@@ -471,13 +433,13 @@ const Home = () => {
                     </div>
 
                     <div>
-                    <div className="bg-slate-200   flex items-center">
-                        <input type="file" ref={choseFile} accept="image/*" onChange={handleUpload} className="p-2" />
-                        <progress value={progress} max="100" />
-                        
+                        <div className="bg-slate-200   flex items-center">
+                            <input type="file" ref={choseFile} accept="image/*" onChange={handleUpload} className="p-2" />
+                            <progress value={progress} max="100" />
+
+                        </div>
                     </div>
-                    </div>
-                    
+
 
                     <div className="flex   w-full px-16 mb-6">
                         {/* <button onClick={startRecording}><FaRecordVinyl /></button> */}

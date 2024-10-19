@@ -64,42 +64,43 @@ const FriendGropup = () => {
   };
   return (
     <>
-      <div className="relative px-5 mt-5">
+      <div className="relative  mt-5">
         <h2>Groups Request</h2>
         {show ? (
           <button
             onClick={handleGrouprequest}
-            className="absolute top-[0%] right-[26px] p-2 bg-[#5F35F5] text-[#fff] rounded"
+            className="absolute top-[0%] right-[26px] p-1 bg-[#ca2e79] text-[#fff] rounded"
           >
             Go back
           </button>
         ) : (
           <button
             onClick={handleGrouprequest}
-            className="absolute top-[0%] right-[26px] p-2 bg-[#5F35F5] text-[#fff] rounded"
+            className="absolute top-[0%] right-0 p-1 bg-[#f55b35] text-[#fff] rounded"
           >
             Create Group
           </button>
         )}
       </div>
-      <p className="text-[red] pl-5">{grouperr}</p>
-      <div className="h-[290px] overflow-scroll">
+      <p className="text-[red] ">{grouperr}</p>
+      <div className={`${grouplist.length>3 ?'h-[220px] overflow-scroll':''}`}>
         {show ? (
-          <div className="ml-[10%]">
+          <div className="flex flex-col  mr-3">
+            
             <input
               onChange={handleGroup}
               placeholder="Group Name"
-              className="border border-secondary w-[90%] py-2 px-2 rounded-xl mt-7"
+              className="border border-secondary outline-0 py-2 px-2 rounded-sm mt-7"
             />
             <input
               onChange={handleTagline}
               placeholder="Tagline"
-              className="border border-secondary w-[90%] py-2 px-2 rounded-xl mt-3 mb-3"
+              className="border border-secondary outline-0  py-2 px-2 rounded-sm mt-3 mb-3"
             />
             <button
               onClick={handlegroupRequest}
               type="submit"
-              className="bg-bg w-[90%]  py-2 rounded-[50px] text-[#fff]"
+              className=" py-2 px-3 rounded-sm text-[#242241] bg-slate-200 block"
             >
               Submit
             </button>
@@ -118,7 +119,7 @@ const FriendGropup = () => {
               <div className="w-[25%]">
                 <button
                   onClick={() => handlejoinrequest(item)}
-                  className="p-3 bg-[#5F35F5] text-[#fff] rounded"
+                  className="p-3 bg-[#f535b2] text-[#fff] rounded"
                 >
                   join
                 </button>
