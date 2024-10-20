@@ -13,7 +13,7 @@ import PrivateRoute from "./PrivateRoute";
       element: <Layout></Layout>,children: [
         {
           path: "/",
-          element:<PrivateRoute><Home /> </PrivateRoute> ,
+          element:<PrivateRoute><Home /> </PrivateRoute> 
         },
         {
             path: "/login",

@@ -14,7 +14,7 @@ const Layout = () => {
     return (
         <div >
             <div className="">
-            <Navbar></Navbar>
+            {/* <Navbar></Navbar> */}
             </div>
            
          
