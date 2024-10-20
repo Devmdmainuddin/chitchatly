@@ -11,9 +11,11 @@ import {
   remove,
 } from "firebase/database";
 import { activeChat } from "../Featured/slices/activeSlice";
+import { FaMinus, FaPlus } from "react-icons/fa";
 // import { activeChat } from "../Featured/slices/activeSlice";
 const Friends = () => {
   const [friends, setFriends] = useState([]);
+  const [isOpen, setIsOpen] = useState(false)
   const db = getDatabase();
   const data = useSelector((state) => state.user.userInfo);
   let dispatch = useDispatch();
@@ -92,11 +94,13 @@ const Friends = () => {
   };
   return (
     <>
-      <div className="relative  mt-12">
+    <div className="relative overflow-hidden">
+    <div onClick={()=>setIsOpen(!isOpen)} className="relative  mt-12">
         <h2>Friend</h2>
-        <BiDotsVerticalRounded className="absolute top-[30%] right-[26px]" />
+        <div><FaPlus className={`absolute right-2 top-1/2 -translate-y-1/2 transition-all duration-150 ${isOpen ? "opacity-0 rotate-90" : "opacity-100"}`}></FaPlus><FaMinus className={`absolute right-2 top-1/2 -translate-y-1/2 transition-all duration-150 ${isOpen ? "opacity-100 " : "opacity-0 rotate-90"}`}></FaMinus></div>
       </div>
-      <div className={` ${friends.length>3 ? 'h-[190px] overflow-scroll':''}`}>
+      {/* {isOpen &&  */}
+      <div className={`  ${friends.length>3 ? 'h-[190px] overflow-scroll':''} ${isOpen?'absolute -top-[240px] left-0':''} transition-all duration-500`}>
         {friends.map((item,idx) => (
           <div key={idx}
             onClick={() => handleActiveChat(item)}
@@ -129,6 +133,9 @@ const Friends = () => {
           </div>
         ))}
       </div>
+      
+    </div>
+      
     </>
   );
 };

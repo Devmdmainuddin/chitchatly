@@ -44,17 +44,22 @@ const FriendRequest = () => {
       </div>
       <div className={` ${friendrequestlist.length>0?'h-[150px] overflow-scroll':''}`}>
         {friendrequestlist.map((item, idx) => (
-          <div key={idx} className="flex items-center mt-5 border-b border-b-[#d1d1d1] border-t-[none] pb-[10px]">
-            <div className="w-[25%] text-center pl-5">
-              <img src="images/user.png" />
-            </div>
-            <div className="w-[50%]">
+          <div key={idx} className="flex items-center justify-between mt-5 border-b border-b-[#d1d1d1] border-t-[none] pb-[10px]">
+            <div>
+                <div className="w-8 h-8 rounded-full">
+                  <img
+                    className="w-full h-full object-cover rounded-full "
+                    src={item.photoURL ? item.photoURL : '/user.png'}
+                  />
+                </div>
+              </div>
+            <div >
               <h3>{item.sendername}</h3>
-              <p>Hi Guys, Wassup!</p>
+             
             </div>
-            <div className="w-[25%]">
+            <div className="">
               <a
-                className="p-3 bg-[#5F35F5] text-[#fff] rounded"
+                className="py-1 px-3 bg-[#3558f5] text-[#fff] rounded cursor-pointer"
                 onClick={() => handlefriendrequest(item)}
               >
                 Accept

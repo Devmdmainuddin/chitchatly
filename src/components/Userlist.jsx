@@ -3,6 +3,7 @@ import { BiDotsVerticalRounded } from "react-icons/bi";
 import { getDatabase, ref, onValue, set, push } from "firebase/database";
 import { useSelector } from "react-redux";
 import { MdCancel, MdOutlinePersonAddAlt } from "react-icons/md";
+import { FaMinus, FaPlus } from "react-icons/fa";
 const Userlist = () => {
   const db = getDatabase();
   const data = useSelector((state) => state.user.userInfo);
@@ -10,6 +11,7 @@ const Userlist = () => {
   const [friendrequestlist, setFriendrequestlist] = useState([]);
   const [friendlist, setFriendlist] = useState([]);
   const [userfilter, setUserfilter] = useState([]);
+  const [isOpen, setIsOpen] = useState(false)
 
   useEffect(() => {
     const starCountRef = ref(db, "users/");
@@ -73,10 +75,11 @@ const Userlist = () => {
 
   return (
     <>
-      <div className="relative  mt-12">
-        <div className="flex justify-between items-center">
+    <div className="relative">
+    <div className="relative  mt-12">
+        <div onClick={()=>setIsOpen(!isOpen)} className="flex justify-between items-center">
           <h2>User List</h2>
-          <BiDotsVerticalRounded className="text-xl" />
+          <div><FaPlus className={`absolute right-2 top-2 -translate-y-1/2 transition-all duration-150 ${isOpen ? "opacity-0 rotate-90" : "opacity-100"}`}></FaPlus><FaMinus className={`absolute right-2 top-2 -translate-y-1/2 transition-all duration-150 ${isOpen ? "opacity-100 " : "opacity-0 rotate-90"}`}></FaMinus></div>
         </div>
 
         <input
@@ -85,7 +88,7 @@ const Userlist = () => {
           className="w-full border border-spacing-10 py-2 px-3  outline-0 my-2"
         />
       </div>
-      <div className={`mt-4 ${userdata.length > 0 ? 'h-[320px] overflow-y-scroll' : 'h-[55px]'}`}>
+      {isOpen && <div className={`mt-4 ${userdata.length > 0 ? 'h-[320px] overflow-y-scroll' : 'h-[55px]'}   transition-all duration-500`}>
         {userfilter.length > 0
           ? userfilter.map((item, idx) => (
             <div key={idx} className="flex items-center justify-between gap-3  border-b border-b-[#d1d1d1] hover:text-[#077fbb]  hover:bg-gray-200  transition-all duration-500  border-t-[none] py-3">
@@ -150,7 +153,10 @@ const Userlist = () => {
               </div>
             </div>
           ))}
-      </div>
+      </div>}
+     
+    </div>
+      
     </>
   );
 };

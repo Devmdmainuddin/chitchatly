@@ -1,5 +1,6 @@
 import { Outlet } from "react-router-dom";
 import Navbar from "../components/Navbar";
+import Container from "../components/Container";
 // import useAuth from "../hooks/useAuth";
 // import Home from "../pages/Home";
 // import Login from "../pages/Login";
@@ -11,9 +12,18 @@ const Layout = () => {
     //     <p>loading..............</p>
     // }
     return (
-        <div>
+        <div >
+            <div className="">
             <Navbar></Navbar>
+            </div>
+           
+         
             <Outlet></Outlet>
+
+           
+          
+           
+           
             {/* {user?<Home />:<Login /> } */}
         </div>
     );

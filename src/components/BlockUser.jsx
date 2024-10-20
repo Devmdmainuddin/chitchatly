@@ -50,7 +50,7 @@ const BlockUser = () => {
 
   return (
     <>
-      <div className="relative px-5 mt-5">
+      <div className="relative  mt-5">
         <h2>Block List</h2>
         <BiDotsVerticalRounded className="absolute top-[30%] right-[26px]" />
       </div>

@@ -9,6 +9,7 @@ import useAuth from "../hooks/useAuth";
 import { useEffect, useState } from "react";
 import { getDatabase, onValue, push, ref, set } from "firebase/database";
 import { useSelector } from "react-redux";
+import Container from "./Container";
 
 const Navbar = () => {
     const db = getDatabase();
@@ -88,8 +89,9 @@ const Navbar = () => {
 
     return (
         <div>
-            <nav className="border-b relative">
-                <div className="flex items-center justify-between py-4 px-6  relative">
+            <Container>
+            <nav className={`border-b relative  ${show ? '' : 'overflow-hidden'} `}>
+                <div className="flex items-center justify-between py-4 px-6  relative ">
                     <h1 className="text-2xl font-bold">Chitchatly</h1>
                     <div onClick={() => setIsHide(!isHide)} className="md:hidden"><span><IoIosMenu /></span></div>
                     <div className="flex items-center w-1/3">
@@ -100,9 +102,10 @@ const Navbar = () => {
                     </div>
 
                     <div
-                        className={`bg-[#f7f7f8]  min-w-[260px] py-6 px-4 font-[sans-serif] flex flex-col absolute top-full right-0 transition-transform duration-500 ease-in-out ${show ? 'translate-x-0' : 'translate-x-full'}`}
-                        style={{ transform: `translateX(${show ? '0' : '100%'})`, zIndex: 100 }}
+                        className={`bg-[#f7f7f8]  min-w-[260px] py-6 px-4 font-[sans-serif] flex flex-col absolute top-full right-0 transition-transform duration-500 ease-in-out ${show ? 'translate-x-0' : 'translate-x-full '}`}
+                        style={{ transform: `translateX(${show ? '0 ' : '100% '})`, zIndex: 100 }}
                     >
+          
                         <ul className="space-y-3 flex-1 mt-6">
                             <h2>{user?.displayName}</h2>
                             <li>
@@ -184,6 +187,8 @@ const Navbar = () => {
                 </div>
 
             </nav>
+            </Container>
+           
         </div>
     );
 };
