@@ -17,16 +17,20 @@ import FriendGropup from "../components/FriendGropup";
 import Friends from "../components/Friends";
 import Userlist from "../components/Userlist";
 import BlockUser from "../components/BlockUser";
+import { useSelector } from "react-redux";
 
 
 const Home = () => {
-    const { user, logOut } = useAuth()
-    const [show, setShow] = useState(false)
+    const { user, } = useAuth()
+
     const [isHide, setIsHide] = useState(true)
     const [editId, setEditId] = useState(null);
     const [message, setMessage] = useState([])
+    let [msglist, setMsglist] = useState([]);
     const [sms, setSms] = useState("");
-
+    let activechatname = useSelector((state) => state.activeChat);
+    console.log(message);
+    const data = useSelector((state) => state.user.userInfo);
     // image
 
     const [progress, setProgress] = useState(0);
@@ -51,17 +55,50 @@ const Home = () => {
 
     // .............
 
+    // const handleSend = () => {
+    //     if (sms.trim() === "") return;
+    //     if (activechatname.active.status == "single") {
+    //         const newMsg = {
+    //             sendarName: user.displayName,
+    //             sendarId: user.uid,
+    //             receiverid: activechatname.active.id,
+    //             receivername: activechatname.active.name,
+    //             message: sms,
+    //             date: new Date().toISOString()
+    //         };
+    //         set(push(ref(db, "messages")), newMsg).then(() => {
+    //             setSms("");
+    //             // setMessage((prevMessages) => [...prevMessages, newMsg]);
+    //         });
+
+
+    //     } else {
+    //         console.log("only friends messages");
+    //     }
+
+    // }
     const handleSend = () => {
-        if (sms.trim() === "") return;
-        set(push(ref(db, "messages")), {
-            sendarName: user.displayName,
-            sendarId: user.uid,
-            message: sms,
-            date: new Date().toISOString()
-        }).then(() => {
-            setSms("");
-        });
-    }
+        if (sms.trim() === "") return; // Ensure there is a message to send
+    
+        // Only send new message if not in edit mode (i.e., editId is null)
+        if (!editId && activechatname?.active?.status === "single") {
+            set(push(ref(db, "messages")), {
+                sendarName: user.displayName,
+                sendarId: user.uid,
+                receiverid: activechatname.active.id,
+                receivername: activechatname.active.name,
+                message: sms,
+                date: new Date().toISOString(),
+            }).then(() => {
+                setSms(""); // Clear input field after sending
+                console.log("Message sent successfully");
+            }).catch((error) => {
+                console.error("Error sending message:", error);
+            });
+        }
+    };
+    
+
 
     // const getMessages = async () => {
     //     const db = getDatabase();
@@ -105,51 +142,57 @@ const Home = () => {
     // Fetch messages when the component mounts
 
     // Real-time listener for messages by userId
-    const getMessagesByUserId = (userId) => {
-        const messagesRef = ref(db, 'messages');
-        const userMessagesQuery = query(messagesRef, orderByChild('sendarId'), equalTo(userId), limitToLast(3));
+    // const getMessagesByUserId = (userId) => {
+    //     const messagesRef = ref(db, 'messages');
+    //     const userMessagesQuery = query(messagesRef, orderByChild('sendarId'), equalTo(userId), limitToLast(3));
 
-        // Set up real-time listener using onValue
-        onValue(userMessagesQuery, (snapshot) => {
-            if (snapshot.exists()) {
-                const data = snapshot.val();
-                const messagesArray = Object.values(data); // Convert data object to array
-                setMessage(messagesArray);
-            } else {
-                // console.log("No messages found for this user.");
-                setMessage([]); // Clear messages if none are found
-            }
-        });
-    };
+    //     // Set up real-time listener using onValue
+    //     onValue(userMessagesQuery, (snapshot) => {
+    //         if (snapshot.exists()) {
+    //             const data = snapshot.val();
+    //             const messagesArray = Object.values(data); // Convert data object to array
+    //             setMessage(messagesArray);
+    //         } else {
+    //             // console.log("No messages found for this user.");
+    //             setMessage([]); // Clear messages if none are found
+    //         }
+    //     });
+    // };
 
+    // single message by userId
+    // useEffect(() => {
+    //     if (user?.uid) {
+    //         getMessagesByUserId(user.uid);
+    //     }
+    //     const messagesRef = ref(db, 'messages');
+    //     const messagesQuery = query(messagesRef, orderByChild('sendarId'), equalTo(user.uid));
 
-    useEffect(() => {
-        if (user?.uid) {
-            getMessagesByUserId(user.uid);
-        }
-        const messagesRef = ref(db, 'messages');
-        const messagesQuery = query(messagesRef, orderByChild('sendarId'), equalTo(user.uid));
+    //     const unsubscribe = onValue(messagesQuery, (snapshot) => {
+    //         if (snapshot.exists()) {
+    //             const data = snapshot.val();
+    //             const formattedMessages = Object.keys(data).map(key => ({
+    //                 id: key,
+    //                 ...data[key]
+    //             }));
+    //             setMessage(formattedMessages); // Get the last 10 messages
+    //         } else {
+    //             setMessage([]); // Clear messages if none found
+    //         }
+    //     });
 
-        const unsubscribe = onValue(messagesQuery, (snapshot) => {
-            if (snapshot.exists()) {
-                const data = snapshot.val();
-                const formattedMessages = Object.keys(data).map(key => ({
-                    id: key,
-                    ...data[key]
-                }));
-                setMessage(formattedMessages); // Get the last 10 messages
-            } else {
-                setMessage([]); // Clear messages if none found
-            }
-        });
+    //     // Cleanup subscription on unmount
+    //     return () => unsubscribe();
 
-        // Cleanup subscription on unmount
-        return () => unsubscribe();
-
-    }, [user.uid, db]);
+    // }, [user.uid, db]);
 
 
     // Function to handle message editing
+
+    //    singleMessage by friend
+    console.log(data);
+
+
+
     const handleEdit = (msg) => {
         setSms(msg.message);
         setEditId(msg.id);
@@ -189,14 +232,35 @@ const Home = () => {
     //     }
     // };
 
+    //  get message  from db  
+    useEffect(() => {
+        const chatRef = ref(db, "messages");
+        onValue(chatRef, (snapshot) => {
+            let arr = [];
+            snapshot.forEach((item) => {
+                if (
+                    (item.val().sendarId === data?.uid &&
+                        item.val().receiverid === activechatname?.active?.id) ||
+                    (item.val().receiverid === data?.uid &&
+                        item.val().sendarId === activechatname?.active?.id)
+                ) {
+                    arr.push(item.val());
+                }
+            });
+            setMessage(arr);
+        });
+    }, [activechatname?.active?.id, data?.uid, db]);
+
+    //   message Update from db  
+
     const handleUpdate = () => {
         if (editId && sms.trim() !== "") {
-            const messageRef = ref(db, `messages/${editId}`); // Reference to the specific message
+            const messageRef = ref(db, `messages/${editId}`);
             set(messageRef, {
-                sendarName: user.displayName, // Include necessary fields
+                sendarName: user.displayName,
                 sendarId: user.uid,
-                message: sms, // Update the message content
-                date: new Date().toISOString() // Update the date
+                message: sms,
+                date: new Date().toISOString()
             }).then(() => {
                 Swal.fire({
                     position: "top-end",
@@ -205,8 +269,8 @@ const Home = () => {
                     showConfirmButton: false,
                     timer: 1500,
                 });
-                setSms(""); // Clear the input
-                setEditId(null); // Reset editId
+                setSms("");
+                setEditId(null); // Reset editId to null after update
             }).catch((error) => {
                 Swal.fire({
                     position: "top-end",
@@ -215,7 +279,6 @@ const Home = () => {
                     showConfirmButton: false,
                     timer: 1500
                 });
-
             });
         } else {
             Swal.fire({
@@ -225,11 +288,42 @@ const Home = () => {
                 showConfirmButton: false,
                 timer: 1500
             });
-
         }
     };
+    // const handleUpdate = () => {
+    //     if (editId && sms.trim() !== "") {
+    //         const messageRef = ref(db, `messages/${editId}`);
+    //         set(messageRef, {
+    //             sendarName: user.displayName,
+    //             sendarId: user.uid,
+    //             message: sms,
+    //             date: new Date().toISOString(),
+    //         }).then(() => {
+    //             Swal.fire({
+    //                 position: "top-end",
+    //                 icon: "success",
+    //                 title: "Message updated successfully.",
+    //                 showConfirmButton: false,
+    //                 timer: 1500,
+    //             });
+    //             setSms("");     
+    //             setEditId(null); 
+    //         }).catch((error) => {
+    //             Swal.fire({
+    //                 position: "top-end",
+    //                 icon: "error",
+    //                 title: `Error updating message: ${error}`,
+    //                 showConfirmButton: false,
+    //                 timer: 1500
+    //             });
+    //         });
+    //     }
+    // };
+
 
     // Function to delete a message from Firebase
+
+    //  deletes a message from Firebase
     const handleDelete = (id) => {
         if (id) {
             const messageRef = ref(db, `messages/${id}`);
@@ -253,7 +347,7 @@ const Home = () => {
             });
         }
     };
-    // ...................................*:first-letter:
+    // ..................................
 
     const handleUpload = (e) => {
         const file = e.target.files[0];
@@ -293,12 +387,12 @@ const Home = () => {
         );
     };
 
-
+    console.log(activechatname?.active?.status);
 
     // ............................
     return (
         <div className="overflow-hidden">
-            
+
 
             <div className="w-[1200px flex  relative">
                 {/* md:h-[calc(100vh-87px)] */}
@@ -306,16 +400,181 @@ const Home = () => {
                     } md:relative md:left-0`}
                 >
                     <FriendRequest />
-                    <FriendGropup/>
-                    <Friends/>
+                    <FriendGropup />
+                    <Friends />
                     <Userlist />
                     <BlockUser />
                 </aside>
                 <main className="w-full md:w-[calc(100vw-260px)] h-screen   bg-[url('/bg-o.svg')] bg-cover bg-no-repeat flex flex-col justify-end">
+
+                    {/* {activechatname?.active?.status === "single" ?
+                        <div className="flex items-center gap-x-2 mb-5 bg-[#232323] py-3 rounded-t-md px-10">
+                            <div className="flex items-center justify-center w-10 h-10 bg-gray-700 rounded-full">
+                                <img
+                                    className="object-cover w-full h-full rounded-full"
+                                    src={activechatname.profile || '/user.png'}
+                                    alt=""
+                                />
+                            </div>
+                            <h2 className="text-xl text-white ">
+                                {activechatname?.active?.name}
+                            </h2>
+                        </div> : <div className="flex justify-center items-center px-12">
+                            <img src="/public/bg.svg" alt="" className=" w-full h-[250px] object-cover" />
+                        </div>}
+
+
+
+                    <div className=" ">
+
+                        {activechatname?.active?.status === "single" ?
+
+                            message.map((msg, index) => (
+                                <li key={index} className=" my-6">
+                                    {msg.sendarId == user.uid ?
+                                        (
+                                            <div className="flex gap-2 justify-end ">
+                                                <div className="">
+                                                    <p className="bg-slate-200 text-[#262626] p-3 rounded-2xl "> {msg.message}</p>
+
+                                                    <div> {new Date(msg.date).toLocaleString("en-US", {
+                                                        year: "numeric",
+                                                        month: "long",
+                                                        day: "numeric",
+                                                        hour: "2-digit",
+                                                        minute: "2-digit",
+                                                        hour12: true,
+                                                    })}</div>
+                                                </div>
+
+                                            </div>
+                                        ) :
+                                        (
+                                            <div className="flex gap-2 justify-end ">
+                                                <div className="">
+                                                    <p className="bg-slate-200 text-[#262626] p-3 rounded-2xl "> {msg.message}</p>
+
+                                                    <div> {new Date(msg.date).toLocaleString("en-US", {
+                                                        year: "numeric",
+                                                        month: "long",
+                                                        day: "numeric",
+                                                        hour: "2-digit",
+                                                        minute: "2-digit",
+                                                        hour12: true,
+                                                    })}</div>
+                                                </div>
+
+                                            </div>
+                                        )}
+
+                                </li>
+                            ))
+                            : 'no friends actively available'
+                        }
+
+
+
+                    </div> */}
+
+                    <div>
+                        {activechatname?.active?.status === "single" ? (
+                            <div>
+                                {/* Chat Header with Friend's Profile */}
+                                <div className="flex items-center gap-x-2 mb-5 bg-[#232323] py-3 rounded-t-md px-10">
+                                    <div className="flex items-center justify-center w-10 h-10 bg-gray-700 rounded-full">
+                                        <img
+                                            className="object-cover w-full h-full rounded-full"
+                                            src={activechatname.profile || '/user.png'}
+                                            alt=""
+                                        />
+                                    </div>
+                                    <h2 className="text-xl text-white ">
+                                        {activechatname?.active?.name}
+                                    </h2>
+                                </div>
+
+                                {/* Message List */}
+                                <ul>
+                                    {message.map((msg, index) => (
+                                        <li key={index} className="my-6">
+                                            {/* Check if it's the current user's message */}
+                                            {msg.sendarId === user.uid ? (
+                                                <div className="flex gap-2 justify-end">
+                                                    <div className="">
+                                                        <p className="bg-slate-200 text-[#262626] p-3 rounded-2xl ">
+                                                            {msg.message}
+                                                        </p>
+                                                        <div className="text-xs text-gray-500">
+                                                            {new Date(msg.date).toLocaleString("en-US", {
+                                                                year: "numeric",
+                                                                month: "long",
+                                                                day: "numeric",
+                                                                hour: "2-digit",
+                                                                minute: "2-digit",
+                                                                hour12: true,
+                                                            })}
+                                                        </div>
+                                                        <div className="flex gap-2">
+                                                            <button onClick={() => handleEdit({ ...msg, id: msg.id })}>
+                                                                <CiEdit className="text-[#f9f9f9] text-xl" />
+                                                            </button>
+                                                            <button onClick={() => handleDelete(msg.id)}><RiChatDeleteFill className="text-red-600 text-xl" /></button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            ) : (
+                                                <div className="flex gap-2 justify-start">
+                                                    <div className="">
+                                                        <p className="bg-gray-700 text-white p-3 rounded-2xl">
+                                                            {msg.message}
+                                                        </p>
+                                                        <div className="text-xs text-gray-500">
+                                                            {new Date(msg.date).toLocaleString("en-US", {
+                                                                year: "numeric",
+                                                                month: "long",
+                                                                day: "numeric",
+                                                                hour: "2-digit",
+                                                                minute: "2-digit",
+                                                                hour12: true,
+                                                            })}
+                                                        </div>
+
+
+                                                        <div className="flex gap-2">
+                                                            <button onClick={() => handleEdit({ ...msg, id: msg.id })}>
+                                                                <CiEdit className="text-[#f9f9f9] text-xl" />
+                                                            </button>
+                                                            <button onClick={() => handleDelete(msg.id)}><RiChatDeleteFill className="text-red-600 text-xl" /></button>
+                                                        </div>
+
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                        ) : (
+                            <div className="flex justify-center items-center px-12">
+                                <img
+                                    src="/public/bg.svg"
+                                    alt=""
+                                    className="w-full h-[250px] object-cover"
+                                />
+                            </div>
+                        )}
+                    </div>
+
+
+
+
                     <div className="text-white flex-1 overflow-y-scroll">
                         <h2>home page</h2>
                         <h1>User Messages</h1>
-                        <ul className="">
+                        <div>
+
+                        </div>
+                        {/* <ul className="">
                             {message.map((msg, index) => (
                                 <li key={index} className=" my-6">
 
@@ -324,7 +583,7 @@ const Home = () => {
                                     <div className="flex gap-2 justify-end ">
                                         <div className="">
                                             <p className="bg-slate-200 text-[#262626] p-3 rounded-2xl "> {msg.message}</p>
-                                            {/* <div><strong>Date:</strong> {new Date(msg.date).toLocaleString()}</div> */}
+                                          
                                             <div> {new Date(msg.date).toLocaleString("en-US", {
                                                 year: "numeric",
                                                 month: "long",
@@ -334,7 +593,7 @@ const Home = () => {
                                                 hour12: true,
                                             })}</div>
 
-                                            {/* <button onClick={() => handleEdit({ ...msg, id: index })}>Edit</button> */}
+                                         
                                             <div className="flex gap-2">
                                                 <button onClick={() => handleEdit({ ...msg, id: msg.id })}><CiEdit className="text-[#f9f9f9] text-xl" /></button>
                                                 <button onClick={() => handleDelete(msg.id)}><RiChatDeleteFill className="text-red-600 text-xl" /></button>
@@ -350,6 +609,9 @@ const Home = () => {
                             ))}
 
 
+
+
+
                             <div>
                                 {imageURL && <img src={imageURL} alt="Uploaded" className="w-12 h-12 object-cover" />}
 
@@ -363,7 +625,7 @@ const Home = () => {
                                 )}
 
                             </div>
-                        </ul>
+                        </ul>  */}
 
                     </div>
 
@@ -401,10 +663,10 @@ const Home = () => {
                             type="text" name="" id="" placeholder=" What's on your mind" className="min-w-[220px] w-full border outline-0 py-2 px-3 rounded-full" />
 
                         <button
-                            onClick={editId ? handleUpdate : handleSend} // Call update if in edit mode
+                            onClick={editId ? handleUpdate : handleSend} // Trigger update if editId exists, send otherwise
                             className="text-center -ml-6 bg-[#f55eb9] text-white text-base w-[98px] py-2 rounded-md"
                         >
-                            {editId ? "Update" : "Send"} {/* Change button text based on state */}
+                            {editId ? "Update" : "Send"} {/* Change button text based on whether editId is set */}
                         </button>
                     </div>
                 </main>

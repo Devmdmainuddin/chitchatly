@@ -3,16 +3,19 @@ import { createSlice } from "@reduxjs/toolkit";
 export const activeSlice = createSlice({
   name: "activeChat",
   initialState: {
-    activeChatId: null,
+    active: localStorage.getItem("single")
+      ? JSON.parse(localStorage.getItem("single"))
+      : null,
+   
   },
   reducers: {
-    setActiveChatId: (state, action) => {
-      state.activeChatId = action.payload;
+    activeChat: (state, action) => {
+      state.active = action.payload;
     },
 }
 });
 
 
-export const { activeChatId } = activeSlice.actions;
+export const { activeChat } = activeSlice.actions;
 
 export default activeSlice.reducer;

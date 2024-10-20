@@ -10,7 +10,8 @@ import {
   push,
   remove,
 } from "firebase/database";
-import { activeChatId } from "../Featured/slices/activeSlice";
+import { activeChat } from "../Featured/slices/activeSlice";
+// import { activeChat } from "../Featured/slices/activeSlice";
 const Friends = () => {
   const [friends, setFriends] = useState([]);
   const db = getDatabase();
@@ -51,10 +52,29 @@ const Friends = () => {
     }
   };
 
+  // let handleActiveChat = (item) => {
+  //   if (item.receiverid == data.uid) {
+  //     dispatch(
+  //       activeChat({
+  //         status: "single",
+  //         id: item.senderid,
+  //         name: item.sendername,
+  //       })
+  //     );
+  //   } else {
+  //     dispatch(
+  //       activeChat({
+  //         status: "single",
+  //         id: item.receiverid,
+  //         name: item.receivername,
+  //       })
+  //     );
+  //   }
+  // };
   let handleActiveChat = (item) => {
     if (item.receiverid == data.uid) {
       dispatch(
-        activeChatId({
+        activeChat({
           status: "single",
           id: item.senderid,
           name: item.sendername,
@@ -62,7 +82,7 @@ const Friends = () => {
       );
     } else {
       dispatch(
-        activeChatId({
+        activeChat({
           status: "single",
           id: item.receiverid,
           name: item.receivername,
@@ -70,7 +90,6 @@ const Friends = () => {
       );
     }
   };
-
   return (
     <>
       <div className="relative  mt-12">
