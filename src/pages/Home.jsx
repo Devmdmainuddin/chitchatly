@@ -6,6 +6,8 @@ import { getDatabase, onValue, push, ref, remove, set, } from "firebase/database
 import Swal from "sweetalert2";
 import { CiEdit } from "react-icons/ci";
 import { RiChatDeleteFill } from "react-icons/ri";
+import EmojiPicker from 'emoji-picker-react';
+
 import {
     getDownloadURL,
     getStorage,
@@ -18,18 +20,20 @@ import Userlist from "../components/Userlist";
 import BlockUser from "../components/BlockUser";
 import { useSelector } from "react-redux";
 import { IoIosImages } from "react-icons/io";
-import { Link, NavLink } from "react-router-dom";
-import { LuContact2, LuPhoneCall } from "react-icons/lu";
-import { AiTwotoneMessage } from "react-icons/ai";
+import { Link, } from "react-router-dom";
+import { LuContact2 } from "react-icons/lu";
+// import { AiTwotoneMessage } from "react-icons/ai";
 import { IoPowerSharp, } from "react-icons/io5";
-import { CgProfile } from "react-icons/cg";
+// import { CgProfile } from "react-icons/cg";
 import { MdCancel, MdOutlinePersonAddAlt } from "react-icons/md";
-import { IoIosMenu, IoMdNotificationsOutline } from "react-icons/io";
+import { IoIosMenu } from "react-icons/io";
 import { TbPasswordUser } from "react-icons/tb";
-import { GrDocumentUpdate } from "react-icons/gr";
-import { ImProfile } from "react-icons/im";
+// import { GrDocumentUpdate } from "react-icons/gr";
+// import { ImProfile } from "react-icons/im";
 import UpdatePasswordModel from "../components/modal/UpdatePasswordModel";
 import UpdateProfileModal from "../components/modal/UpdateProfileModal";
+import { BsFillEmojiSmileFill } from "react-icons/bs";
+import moment from "moment";
 
 
 const Home = () => {
@@ -44,6 +48,8 @@ const Home = () => {
     const [userfilterTop, setUserfilterTop] = useState([]);
     const [friendrequestlist, setFriendrequestlist] = useState([]);
     const [friendlist, setFriendlist] = useState([]);
+    const [emojishow, setEmojishow] = useState(false);
+
     // const [open,setOpen] = useState(false);
     const [isOpen, setIsOpen] = useState(false)
     const [isOpenpass, setIsOpenpass] = useState(false)
@@ -52,7 +58,7 @@ const Home = () => {
     const db = getDatabase()
     const storage = getStorage();
     const choseFile = useRef();
-// console.log(user);
+    // console.log(user);
     const handleSendAudio = (blob) => {
         if (!blob || blob.size === 0) {
             console.error('Invalid blob or recording failed');
@@ -70,7 +76,7 @@ const Home = () => {
             (snapshot) => {
                 const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
                 // setProgress(progress);
-            console.log(progress);
+                console.log(progress);
             },
             (error) => {
                 console.error('Audio upload error:', error);
@@ -93,6 +99,7 @@ const Home = () => {
                         date: new Date().toISOString(),
                     }).then(() => {
                         setSms('');
+                        setEmojishow(false);
                         console.log('Audio message sent successfully');
                     }).catch((error) => {
                         console.error('Error sending audio message:', error);
@@ -123,7 +130,8 @@ const Home = () => {
                 message: sms,
                 date: new Date().toISOString(),
             }).then(() => {
-                setSms(""); // Clear input field after sending
+                setSms(""); 
+                setEmojishow(false);// Clear input field after sending
                 console.log("Message sent successfully");
             }).catch((error) => {
                 console.error("Error sending message:", error);
@@ -333,32 +341,36 @@ const Home = () => {
         }
     };
 
+    let handleEmoji = (emoji) => {
+        setSms(sms + emoji.emoji);
+    };
+
 
     // ............................
     return (
-     
 
-            <div className="px-6">
-                <Container>
-                    <div className="relative ">
-                        <header className="">
-                            <nav className={`border-b relative } `}>
-                                <div className="flex items-center justify-between py-4 px-6   ">
-                                    <h1 className="text-2xl font-bold">Chitchatly</h1>
-                                    <div onClick={() => setIsHide(!isHide)} className="md:hidden"><span><IoIosMenu /></span></div>
-                                    <div className="flex items-center w-1/3">
-                                        <input onChange={handlHeaderesearch} type="text" name="" id="" placeholder=" Search a Friend" className="min-w-[220px] w-full border outline-0 py-2 px-3" />
-                                    </div>
-                                    <div onClick={() => setShow(!show)} className="logo ">
-                                        <button><img src={user.photoURL ? user.photoURL :'/user.png'} alt="" className="w-12 h-12 rounded-full" /> </button>
-                                        <div className={` z-50 w-[365px] px-6 absolute top-full left-1/2 -translate-x-1/2 bg-slate-400  ${userfilterTop.length > 3 ? 'h-[235px] overflow-y-scroll' : ''}`}>
+
+        <div className="px-6">
+            <Container>
+                <div className="relative ">
+                    <header className="">
+                        <nav className={`border-b relative } `}>
+                            <div className="flex items-center justify-between py-4 px-6   ">
+                                <h1 className="text-2xl font-bold">Chitchatly</h1>
+                                <div onClick={() => setIsHide(!isHide)} className="md:hidden"><span><IoIosMenu /></span></div>
+                                <div className="flex items-center w-1/3">
+                                    <input onChange={handlHeaderesearch} type="text" name="" id="" placeholder=" Search a Friend" className="min-w-[220px] w-full border outline-0 py-2 px-3" />
+                                </div>
+                                <div onClick={() => setShow(!show)} className="logo ">
+                                    <button><img src={user.photoURL ? user.photoURL : '/user.png'} alt="" className="w-12 h-12 rounded-full" /> </button>
+                                    <div className={` z-50 w-[365px] px-6 absolute top-full left-1/2 -translate-x-1/2 bg-slate-400  ${userfilterTop.length > 3 ? 'h-[235px] overflow-y-scroll' : ''}`}>
                                         {userfilterTop.map((item, idx) => (
                                             <div key={idx} className="flex items-center justify-between gap-3  border-b border-b-[#d1d1d1] hover:text-[#077fbb]  hover:bg-gray-200  transition-all duration-500  border-t-[none] py-3">
                                                 <div>
                                                     <div className="w-8 h-8 rounded-full">
                                                         <img
                                                             className="w-full h-full object-cover rounded-full "
-                                                            src={data.photoURL ? data.photoURL :'/user.png'}
+                                                            src={data.photoURL ? data.photoURL : '/user.png'}
                                                         />
                                                     </div>
                                                 </div>
@@ -385,306 +397,323 @@ const Home = () => {
                                             </div>
                                         ))}
                                     </div>
-                                    </div>
+                                </div>
 
-                                    <div
-                                        className={`bg-[#f7f7f8]  min-w-[260px] py-6 px-4 font-[sans-serif] flex flex-col absolute top-full right-0 transition-transform duration-500 ease-in-out ${show ? 'translate-x-0' : 'translate-x-full '}`}
-                                        style={{ transform: `translateX(${show ? '0 ' : '100% '})`, zIndex: 100 }}
-                                    >
+                                <div
+                                    className={`bg-[#f7f7f8]  min-w-[260px] py-6 px-4 font-[sans-serif] flex flex-col absolute top-full right-0 transition-transform duration-500 ease-in-out ${show ? 'translate-x-0' : 'translate-x-full '}`}
+                                    style={{ transform: `translateX(${show ? '0 ' : '100% '})`, zIndex: 100 }}
+                                >
 
-                                        <ul className="space-y-3 flex-1 mt-6">
-                                            <h2>{user?.displayName}</h2>
-                                           
-                               
-                                            {/* <li>
+                                    <ul className="space-y-3 flex-1 mt-6">
+                                        <h2>{user?.displayName}</h2>
+
+
+                                        {/* <li>
                                                 <Link className="text-black hover:text-[#077fbb] text-sm flex items-center hover:bg-gray-200 rounded px-4 py-3 transition-all relative">
                                                     <IoMdNotificationsOutline className="w-[18px] h-[18px] text-lg mr-4" />
                                                     <span>Notification</span>
                                                     <span className="bg-red-400 w-[18px] h-[18px] flex items-center justify-center text-white text-[11px] font-bold ml-auto rounded-full">7</span>
                                                 </Link>
                                             </li> */}
-                                            {/* <li  onClick={() => setOpen(true)}>
+                                        {/* <li  onClick={() => setOpen(true)}>
                                                 <Link className="text-black hover:text-[#077fbb] text-sm flex items-center hover:bg-gray-200 rounded px-4 py-3 transition-all">
                                                     <CgProfile className="w-[18px] h-[18px] mr-4 text-lg" />
                                                     <span className="capitalize">Views Profile</span>
                                                 </Link>
                                             </li> */}
-                                            <li onClick={() => setIsOpen(true)} >
-                                                <Link className="text-black hover:text-[#077fbb] text-sm flex items-center hover:bg-gray-200 rounded px-4 py-3 transition-all">
-                                                    <LuContact2 className="w-[18px] h-[18px] mr-4 text-lg" />
-                                                    <span className="capitalize"> update profile</span>
-                                                </Link>
-                                            </li>
-                                            <li onClick={() => setIsOpenpass(true)}>
-                                                <Link className="text-black hover:text-[#077fbb] text-sm flex items-center hover:bg-gray-200 rounded px-4 py-3 transition-all">
-                                                    <TbPasswordUser className="w-[18px] h-[18px] mr-4 text-lg" />
-                                                    <span className="capitalize"> password change</span>
-                                                </Link>
-                                            </li>
+                                        <li onClick={() => setIsOpen(true)} >
+                                            <Link className="text-black hover:text-[#077fbb] text-sm flex items-center hover:bg-gray-200 rounded px-4 py-3 transition-all">
+                                                <LuContact2 className="w-[18px] h-[18px] mr-4 text-lg" />
+                                                <span className="capitalize"> update profile</span>
+                                            </Link>
+                                        </li>
+                                        <li onClick={() => setIsOpenpass(true)}>
+                                            <Link className="text-black hover:text-[#077fbb] text-sm flex items-center hover:bg-gray-200 rounded px-4 py-3 transition-all">
+                                                <TbPasswordUser className="w-[18px] h-[18px] mr-4 text-lg" />
+                                                <span className="capitalize"> password change</span>
+                                            </Link>
+                                        </li>
 
-                                            {/* <li>
+                                        {/* <li>
                                                 <Link className="text-black hover:text-[#077fbb] text-sm flex items-center hover:bg-gray-200 rounded px-4 py-3 transition-all">
                                                     <LuPhoneCall className="w-[18px] h-[18px] mr-4 text-lg" />
                                                     <span className="capitalize">call</span>
                                                 </Link>
                                             </li> */}
 
-                                            <li onClick={logOut}>
-                                                <Link className="text-black hover:text-[#077fbb] text-sm flex items-center hover:bg-gray-200 rounded px-4 py-3 transition-all">
+                                        <li onClick={logOut}>
+                                            <Link className="text-black hover:text-[#077fbb] text-sm flex items-center hover:bg-gray-200 rounded px-4 py-3 transition-all">
 
-                                                    <IoPowerSharp className="w-[18px] h-[18px] mr-4 text-lg" />
-                                                    <span>Logout</span>
-                                                </Link>
-                                            </li>
+                                                <IoPowerSharp className="w-[18px] h-[18px] mr-4 text-lg" />
+                                                <span>Logout</span>
+                                            </Link>
+                                        </li>
+                                    </ul>
+                                </div>
+
+                            </div>
+
+
+                        </nav>
+                    </header>
+                </div>
+
+                <div className=" flex  relative  overflow-hidden ">
+                    {/* md:h-[calc(100vh-87px)] */}
+                    <aside className={`bg-[#f7f7f8]  min-w-[260px] py-6 px-4 font-[sans-serif] flex flex-col fixed top-[87px] md:top-0  transition-all duration-500 ${isHide ? '-left-full' : 'left-0'
+                        } md:relative md:left-0`}
+                    >
+                        <FriendRequest />
+                        <Friends />
+                        <Userlist handlefriendrequest={handlefriendrequest} userdata={userdata} friendrequestlist={friendrequestlist} friendlist={friendlist} userfilter={userfilter} handlesearch={handlesearch} />
+                        <BlockUser />
+                    </aside>
+                    <main className="w-full md:w-[calc(100vw-260px)]    bg-[url('/bg-o.svg')] bg-cover bg-no-repeat flex flex-col justify-end">
+                        <div>
+                            {activechatname?.active?.status === "single" ?
+                                (
+                                    <div className="overflow-hidden flex flex-col items-stretch">
+                                        {/* Chat Header with Friend's Profile */}
+                                        <div className="flex items-center gap-x-2 mb-5 bg-[#325f49] py-3 rounded-t-md px-10">
+                                            <div className="flex items-center justify-center w-10 h-10 bg-gray-700 rounded-full">
+                                                <img
+                                                    className="object-cover w-full h-full rounded-full"
+                                                    src={activechatname.profile || '/user.png'}
+                                                    alt=""
+                                                />
+                                            </div>
+                                            <h2 className="text-xl text-white ">
+                                                {activechatname?.active?.name}
+                                            </h2>
+                                        </div>
+
+                                        {/* Message List */}
+                                        <ul className="h-screen overflow-y-scroll relative">
+                                            {message.map((msg, index) => (
+                                                <li key={index} className="my-6">
+                                                    {/* Check if it's the current user's message */}
+                                                    {msg.sendarId === user.uid ?
+                                                        (
+                                                            <div className="flex gap-2 justify-end">
+                                                                {msg.image ?
+                                                                    (
+                                                                        <div className="flex flex-col items-end mb-2">
+                                                                            <img src={msg.image} className="w-[100px] h-[100px] object-cover" />
+                                                                            <span className="text-white text-xs mt-1">{new Date(msg.date).toLocaleString("en-US", {
+                                                                                year: "numeric",
+                                                                                month: "long",
+                                                                                day: "numeric",
+                                                                                hour: "2-digit",
+                                                                                minute: "2-digit",
+                                                                                hour12: true,
+                                                                            })}</span>
+                                                                             {/* {moment(msg.date, "YYYYMMDD hh:mm").fromNow()} */}
+                                                                        </div>
+                                                                    )
+                                                                    :
+                                                                    msg.audio ? (<audio controls>
+                                                                        <source src={msg.audio} type="audio/webm" />
+                                                                        Your browser does not support the audio element.
+                                                                    </audio>)
+                                                                        :
+                                                                        (
+                                                                            <div className="">
+                                                                                <p className="bg-slate-200 text-[#262626] p-3 rounded-2xl ">
+                                                                                    {msg.message}
+                                                                                </p>
+                                                                                <div className="text-xs text-white">
+                                                                                    {new Date(msg.date).toLocaleString("en-US", {
+                                                                                        year: "numeric",
+                                                                                        month: "long",
+                                                                                        day: "numeric",
+                                                                                        hour: "2-digit",
+                                                                                        minute: "2-digit",
+                                                                                        hour12: true,
+                                                                                    })}
+                                                                                </div>
+                                                                                <div className="flex gap-2">
+                                                                                    <button onClick={() => handleEdit({ ...msg, id: msg.id })}>
+                                                                                        <CiEdit className="text-[#f9f9f9] text-xl" />
+                                                                                    </button>
+                                                                                    <button onClick={() => handleDelete(msg.id)}><RiChatDeleteFill className="text-red-600 text-xl" /></button>
+                                                                                </div>
+                                                                            </div>
+                                                                        )}
+
+
+                                                            </div>
+                                                        )
+                                                        :
+                                                        //             (
+                                                        //                 <div className="flex gap-2 justify-start">
+                                                        //                     <div className="">
+                                                        //                         <p className="bg-gray-700 text-white p-3 rounded-2xl">
+                                                        //                             {msg.message}
+                                                        //                         </p>
+                                                        //                         <div className="text-xs text-gray-500">
+                                                        //                             {new Date(msg.date).toLocaleString("en-US", {
+                                                        //                                 year: "numeric",
+                                                        //                                 month: "long",
+                                                        //                                 day: "numeric",
+                                                        //                                 hour: "2-digit",
+                                                        //                                 minute: "2-digit",
+                                                        //                                 hour12: true,
+                                                        //                             })}
+                                                        //                         </div>
+
+
+                                                        //                         <div className="flex gap-2">
+                                                        //                             {/* <button onClick={() => handleEdit({ ...msg, id: msg.id })}>
+                                                        //         <CiEdit className="text-[#f9f9f9] text-xl" />
+                                                        //     </button>
+                                                        //     <button onClick={() => handleDelete(msg.id)}><RiChatDeleteFill className="text-red-600 text-xl" /></button>
+                                                        //  */}
+                                                        //                         </div>
+
+                                                        //                     </div>
+                                                        //                 </div>
+                                                        //             )
+                                                        (
+                                                            <div className="flex gap-2 justify-start">
+                                                                {msg.image ?
+                                                                    (
+                                                                        <div className="flex flex-col items-end mb-2">
+                                                                            <img src={msg.image} className="w-[100px] h-[100px] object-cover" />
+                                                                            <span className="text-white text-xs mt-1">{new Date(msg.date).toLocaleString("en-US", {
+                                                                                year: "numeric",
+                                                                                month: "long",
+                                                                                day: "numeric",
+                                                                                hour: "2-digit",
+                                                                                minute: "2-digit",
+                                                                                hour12: true,
+                                                                            })}</span>
+                                                                        </div>
+                                                                    )
+                                                                    :
+                                                                    msg.audio ? (<audio controls>
+                                                                        <source src={msg.audio} type="audio/webm" />
+                                                                        Your browser does not support the audio element.
+                                                                    </audio>)
+                                                                        :
+                                                                        (
+                                                                            <div className="">
+                                                                                <p className="bg-slate-200 text-[#262626] p-3 rounded-2xl ">
+                                                                                    {msg.message}
+                                                                                </p>
+                                                                                <div className="text-xs text-gray-500">
+                                                                                    {new Date(msg.date).toLocaleString("en-US", {
+                                                                                        year: "numeric",
+                                                                                        month: "long",
+                                                                                        day: "numeric",
+                                                                                        hour: "2-digit",
+                                                                                        minute: "2-digit",
+                                                                                        hour12: true,
+                                                                                    })}
+                                                                                </div>
+                                                                                <div className="flex gap-2">
+                                                                                    <button onClick={() => handleEdit({ ...msg, id: msg.id })}>
+                                                                                        <CiEdit className="text-[#f9f9f9] text-xl" />
+                                                                                    </button>
+                                                                                    <button onClick={() => handleDelete(msg.id)}><RiChatDeleteFill className="text-red-600 text-xl" /></button>
+                                                                                </div>
+                                                                            </div>
+                                                                        )}
+
+
+                                                            </div>
+                                                        )
+
+                                                    }
+                                                </li>
+                                            ))}
                                         </ul>
                                     </div>
-                                    
-                                </div>
-
-
-                            </nav>
-                        </header>
-                    </div>
-
-                    <div className=" flex  relative  overflow-hidden ">
-                        {/* md:h-[calc(100vh-87px)] */}
-                        <aside className={`bg-[#f7f7f8]  min-w-[260px] py-6 px-4 font-[sans-serif] flex flex-col fixed top-[87px] md:top-0  transition-all duration-500 ${isHide ? '-left-full' : 'left-0'
-                            } md:relative md:left-0`}
-                        >
-                            <FriendRequest />
-                            <Friends />
-                            <Userlist handlefriendrequest={handlefriendrequest} userdata={userdata} friendrequestlist={friendrequestlist} friendlist={friendlist} userfilter={userfilter} handlesearch={handlesearch} />
-                            <BlockUser />
-                        </aside>
-                        <main className="w-full md:w-[calc(100vw-260px)]    bg-[url('/bg-o.svg')] bg-cover bg-no-repeat flex flex-col justify-end">
-                            <div>
-                                {activechatname?.active?.status === "single" ?
-                                    (
-                                        <div className="overflow-hidden flex flex-col items-stretch">
-                                            {/* Chat Header with Friend's Profile */}
-                                            <div className="flex items-center gap-x-2 mb-5 bg-[#325f49] py-3 rounded-t-md px-10">
-                                                <div className="flex items-center justify-center w-10 h-10 bg-gray-700 rounded-full">
-                                                    <img
-                                                        className="object-cover w-full h-full rounded-full"
-                                                        src={activechatname.profile || '/user.png'}
-                                                        alt=""
-                                                    />
-                                                </div>
-                                                <h2 className="text-xl text-white ">
-                                                    {activechatname?.active?.name}
-                                                </h2>
-                                            </div>
-
-                                            {/* Message List */}
-                                            <ul className="h-screen overflow-y-scroll relative">
-                                                {message.map((msg, index) => (
-                                                    <li key={index} className="my-6">
-                                                        {/* Check if it's the current user's message */}
-                                                        {msg.sendarId === user.uid ?
-                                                            (
-                                                                <div className="flex gap-2 justify-end">
-                                                                    {msg.image ?
-                                                                        (
-                                                                            <div className="flex flex-col items-end mb-2">
-                                                                                <img src={msg.image} className="w-[100px] h-[100px] object-cover" />
-                                                                                <span className="text-white text-xs mt-1">{new Date(msg.date).toLocaleString("en-US", {
-                                                                                    year: "numeric",
-                                                                                    month: "long",
-                                                                                    day: "numeric",
-                                                                                    hour: "2-digit",
-                                                                                    minute: "2-digit",
-                                                                                    hour12: true,
-                                                                                })}</span>
-                                                                            </div>
-                                                                        )
-                                                                        :
-                                                                        msg.audio ? (<audio controls>
-                                                                            <source src={msg.audio} type="audio/webm" />
-                                                                            Your browser does not support the audio element.
-                                                                        </audio>)
-                                                                            :
-                                                                            (
-                                                                                <div className="">
-                                                                                    <p className="bg-slate-200 text-[#262626] p-3 rounded-2xl ">
-                                                                                        {msg.message}
-                                                                                    </p>
-                                                                                    <div className="text-xs text-gray-500">
-                                                                                        {new Date(msg.date).toLocaleString("en-US", {
-                                                                                            year: "numeric",
-                                                                                            month: "long",
-                                                                                            day: "numeric",
-                                                                                            hour: "2-digit",
-                                                                                            minute: "2-digit",
-                                                                                            hour12: true,
-                                                                                        })}
-                                                                                    </div>
-                                                                                    <div className="flex gap-2">
-                                                                                        <button onClick={() => handleEdit({ ...msg, id: msg.id })}>
-                                                                                            <CiEdit className="text-[#f9f9f9] text-xl" />
-                                                                                        </button>
-                                                                                        <button onClick={() => handleDelete(msg.id)}><RiChatDeleteFill className="text-red-600 text-xl" /></button>
-                                                                                    </div>
-                                                                                </div>
-                                                                            )}
-
-
-                                                                </div>
-                                                            )
-                                                            :
-                                                            //             (
-                                                            //                 <div className="flex gap-2 justify-start">
-                                                            //                     <div className="">
-                                                            //                         <p className="bg-gray-700 text-white p-3 rounded-2xl">
-                                                            //                             {msg.message}
-                                                            //                         </p>
-                                                            //                         <div className="text-xs text-gray-500">
-                                                            //                             {new Date(msg.date).toLocaleString("en-US", {
-                                                            //                                 year: "numeric",
-                                                            //                                 month: "long",
-                                                            //                                 day: "numeric",
-                                                            //                                 hour: "2-digit",
-                                                            //                                 minute: "2-digit",
-                                                            //                                 hour12: true,
-                                                            //                             })}
-                                                            //                         </div>
-
-
-                                                            //                         <div className="flex gap-2">
-                                                            //                             {/* <button onClick={() => handleEdit({ ...msg, id: msg.id })}>
-                                                            //         <CiEdit className="text-[#f9f9f9] text-xl" />
-                                                            //     </button>
-                                                            //     <button onClick={() => handleDelete(msg.id)}><RiChatDeleteFill className="text-red-600 text-xl" /></button>
-                                                            //  */}
-                                                            //                         </div>
-
-                                                            //                     </div>
-                                                            //                 </div>
-                                                            //             )
-                                                            (
-                                                                <div className="flex gap-2 justify-start">
-                                                                    {msg.image ?
-                                                                        (
-                                                                            <div className="flex flex-col items-end mb-2">
-                                                                                <img src={msg.image} className="w-[100px] h-[100px] object-cover" />
-                                                                                <span className="text-white text-xs mt-1">{new Date(msg.date).toLocaleString("en-US", {
-                                                                                    year: "numeric",
-                                                                                    month: "long",
-                                                                                    day: "numeric",
-                                                                                    hour: "2-digit",
-                                                                                    minute: "2-digit",
-                                                                                    hour12: true,
-                                                                                })}</span>
-                                                                            </div>
-                                                                        )
-                                                                        :
-                                                                        msg.audio ? (<audio controls>
-                                                                            <source src={msg.audio} type="audio/webm" />
-                                                                            Your browser does not support the audio element.
-                                                                        </audio>)
-                                                                            :
-                                                                            (
-                                                                                <div className="">
-                                                                                    <p className="bg-slate-200 text-[#262626] p-3 rounded-2xl ">
-                                                                                        {msg.message}
-                                                                                    </p>
-                                                                                    <div className="text-xs text-gray-500">
-                                                                                        {new Date(msg.date).toLocaleString("en-US", {
-                                                                                            year: "numeric",
-                                                                                            month: "long",
-                                                                                            day: "numeric",
-                                                                                            hour: "2-digit",
-                                                                                            minute: "2-digit",
-                                                                                            hour12: true,
-                                                                                        })}
-                                                                                    </div>
-                                                                                    <div className="flex gap-2">
-                                                                                        <button onClick={() => handleEdit({ ...msg, id: msg.id })}>
-                                                                                            <CiEdit className="text-[#f9f9f9] text-xl" />
-                                                                                        </button>
-                                                                                        <button onClick={() => handleDelete(msg.id)}><RiChatDeleteFill className="text-red-600 text-xl" /></button>
-                                                                                    </div>
-                                                                                </div>
-                                                                            )}
-
-
-                                                                </div>
-                                                            )
-
-                                                        }
-                                                    </li>
-                                                ))}
-                                            </ul>
-                                        </div>
-                                    )
-                                    :
-                                    (
-                                        <div className="flex justify-center items-center px-12 h-[425px]">
-                                            <img
-                                                src="/no-friend.png"
-                                                alt=""
-                                                className="w-full h-full object-cover"
-                                            />
-                                        </div>
-                                    )}
-                            </div>
-                            <div>
-                            <UpdatePasswordModel isOpen={isOpenpass} setIsOpen={setIsOpenpass} > </UpdatePasswordModel>
-                            <UpdateProfileModal isOpen={isOpen} setIsOpen={setIsOpen} email={user?.email}></UpdateProfileModal>
-                            </div>
-
-                            {/* <progress value={progress} max="100" /> */}
-                            <div>
-                                <div className="flex items-center gap-1 w-1/2 justify-center mx-auto py-6">
-                                    <div>
-                                        <AudioRecorder
-                                            onRecordingComplete={handleSendAudio}
-                                            audioTrackConstraints={{
-                                                noiseSuppression: true,
-                                                echoCancellation: true,
-                                            }}
-                                            onNotAllowedOrFound={(err) => {
-                                                console.table(err);
-
-                                            }}
-                                            downloadOnSavePress={false}
-                                            downloadFileExtension="webm"
-                                            mediaRecorderOptions={{
-                                                audioBitsPerSecond: 128000,
-                                            }}
+                                )
+                                :
+                                (
+                                    <div className="flex justify-center items-center px-12 h-[425px]">
+                                        <img
+                                            src="/no-friend.png"
+                                            alt=""
+                                            className="w-full h-full object-cover"
                                         />
                                     </div>
+                                )}
+                        </div>
+                        <div>
+                            <UpdatePasswordModel isOpen={isOpenpass} setIsOpen={setIsOpenpass} > </UpdatePasswordModel>
+                            <UpdateProfileModal isOpen={isOpen} setIsOpen={setIsOpen} email={user?.email}></UpdateProfileModal>
+                        </div>
 
-                                    <div className=" text-[#f25169] ">
-                                        <div className="w-10 h-10 bg-white rounded-full flex justify-center items-center">
-                                            <label htmlFor="file-upload" className="custom-file-upload">
-                                                <IoIosImages className="text-2xl" />
-                                            </label>
-                                            <input id="file-upload" ref={choseFile} type="file" accept="image/*" onChange={handleUpload} className="hidden" />
+                        {/* <progress value={progress} max="100" /> */}
+                        
+                        <div>
 
-                                        </div>
+                            <div className="flex items-center gap-1 w-1/2 justify-center mx-auto py-6 relative">
 
-                                    </div>
-                                    <div className="flex">
-                                        <input
-                                            onChange={(e) => setSms(e.target.value)}
-                                            value={sms}
-                                            type="text" name="" id="" placeholder=" What's on your mind" className="min-w-[220px] w-full border outline-0 py-2 px-3 rounded-tl-full rounded-bl-full" />
-                                        <button
-                                            onClick={editId ? handleUpdate : handleSend}
-                                            className="text-center  bg-[#f55eb9] text-white text-base w-[98px] py-1 rounded-tr-full rounded-br-full"
-                                        >
-                                            {editId ? "Update" : "Send"}
-                                        </button>
+                            {emojishow && (
+                            <div className="absolute bottom-16 left-16">
+                                <EmojiPicker onEmojiClick={(emoji) => handleEmoji(emoji)} />
+                            </div>
+                        )}
+                                <div onClick={() => setEmojishow(!emojishow)} className=""  >
+
+                                </div>
+                                <div>
+                                    <AudioRecorder
+                                        onRecordingComplete={handleSendAudio}
+                                        audioTrackConstraints={{
+                                            noiseSuppression: true,
+                                            echoCancellation: true,
+                                        }}
+                                        onNotAllowedOrFound={(err) => {
+                                            console.table(err);
+
+                                        }}
+                                        downloadOnSavePress={false}
+                                        downloadFileExtension="webm"
+                                        mediaRecorderOptions={{
+                                            audioBitsPerSecond: 128000,
+                                        }}
+                                    />
+                                </div>
+
+                                <div className=" text-[#f25169] ">
+                                    <div className="w-10 h-10 bg-white rounded-full flex justify-center items-center">
+                                        <label htmlFor="file-upload" className="custom-file-upload">
+                                            <IoIosImages className="text-2xl" />
+                                        </label>
+                                        <input id="file-upload" ref={choseFile} type="file" accept="image/*" onChange={handleUpload} className="hidden" />
+
                                     </div>
 
                                 </div>
+                                <div onClick={() => setEmojishow(!emojishow)} className=" text-[#f25169] ">
+                                    <div className="w-10 h-10 bg-white rounded-full flex justify-center items-center">
+                                        <BsFillEmojiSmileFill className="text-2xl" />
+                                    </div>
+                                </div>
+                                <div className="flex">
+                                    <input
+                                        onChange={(e) => setSms(e.target.value)}
+                                        value={sms}
+                                        type="text" name="" id="" placeholder=" What's on your mind" className="min-w-[220px] w-full border outline-0 py-2 px-3 rounded-tl-full rounded-bl-full" />
+                                    <button
+                                        onClick={editId ? handleUpdate : handleSend}
+                                        className="text-center  bg-[#f55eb9] text-white text-base w-[98px] py-1 rounded-tr-full rounded-br-full"
+                                    >
+                                        {editId ? "Update" : "Send"}
+                                    </button>
+                                </div>
+
                             </div>
+                        </div>
 
 
-                        </main>
-                    </div >
-                </Container>
-            </div >
+                    </main>
+                </div >
+            </Container>
+        </div >
 
 
     );
