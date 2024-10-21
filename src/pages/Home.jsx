@@ -18,18 +18,22 @@ import Userlist from "../components/Userlist";
 import BlockUser from "../components/BlockUser";
 import { useSelector } from "react-redux";
 import { IoIosImages } from "react-icons/io";
-import { Link } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
 import { LuContact2, LuPhoneCall } from "react-icons/lu";
 import { AiTwotoneMessage } from "react-icons/ai";
 import { IoPowerSharp, } from "react-icons/io5";
 import { CgProfile } from "react-icons/cg";
 import { MdCancel, MdOutlinePersonAddAlt } from "react-icons/md";
 import { IoIosMenu, IoMdNotificationsOutline } from "react-icons/io";
+import { TbPasswordUser } from "react-icons/tb";
+import { GrDocumentUpdate } from "react-icons/gr";
+import { ImProfile } from "react-icons/im";
+import UpdatePasswordModel from "../components/modal/UpdatePasswordModel";
+import UpdateProfileModal from "../components/modal/UpdateProfileModal";
 
 
 const Home = () => {
     const { user, logOut } = useAuth()
-    // const navigate = useNavigate();
     const [isHide, setIsHide] = useState(true)
     const [editId, setEditId] = useState(null);
     const [message, setMessage] = useState([])
@@ -40,13 +44,15 @@ const Home = () => {
     const [userfilterTop, setUserfilterTop] = useState([]);
     const [friendrequestlist, setFriendrequestlist] = useState([]);
     const [friendlist, setFriendlist] = useState([]);
+    // const [open,setOpen] = useState(false);
+    const [isOpen, setIsOpen] = useState(false)
+    const [isOpenpass, setIsOpenpass] = useState(false)
     let activechatname = useSelector((state) => state.activeChat);
     const data = useSelector((state) => state.user.userInfo);
-    // const [progress, setProgress] = useState(0);
     const db = getDatabase()
     const storage = getStorage();
     const choseFile = useRef();
-
+// console.log(user);
     const handleSendAudio = (blob) => {
         if (!blob || blob.size === 0) {
             console.error('Invalid blob or recording failed');
@@ -64,6 +70,7 @@ const Home = () => {
             (snapshot) => {
                 const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
                 // setProgress(progress);
+            console.log(progress);
             },
             (error) => {
                 console.error('Audio upload error:', error);
@@ -85,7 +92,7 @@ const Home = () => {
                         audio: audioUrl, // Save the audio URL
                         date: new Date().toISOString(),
                     }).then(() => {
-                        setSms(''); 
+                        setSms('');
                         console.log('Audio message sent successfully');
                     }).catch((error) => {
                         console.error('Error sending audio message:', error);
@@ -213,6 +220,7 @@ const Home = () => {
             (snapshot) => {
                 const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
                 // setProgress(progress);
+                console.log(progress);
             },
             (error) => {
                 console.error("Upload error:", error);
@@ -259,7 +267,7 @@ const Home = () => {
             setUserdata(arr);
         });
     }, [data?.uid, db]);
-// friendrequest send
+    // friendrequest send
     let handlefriendrequest = (item) => {
         set(push(ref(db, "friendrequest/")), {
             sendername: data.displayName,
@@ -269,7 +277,7 @@ const Home = () => {
         });
     };
 
-// friendrequest friend
+    // friendrequest friend
     useEffect(() => {
         const starCountRef = ref(db, "friendrequest/");
         onValue(starCountRef, (snapshot) => {
@@ -280,7 +288,7 @@ const Home = () => {
             setFriendrequestlist(arr);
         });
     }, [db]);
-// friend
+    // friend
     useEffect(() => {
         const fCountRef = ref(db, "friend/");
         onValue(fCountRef, (snapshot) => {
@@ -293,7 +301,7 @@ const Home = () => {
     }, [db]);
 
 
-// search
+    // search
     let handlesearch = (e) => {
         let arr = [];
         if (e.target.value.length == 0) {
@@ -328,22 +336,55 @@ const Home = () => {
 
     // ............................
     return (
-        <div >
+     
 
-            <div className="">
-
+            <div className="px-6">
                 <Container>
-                    <div className="relative">
+                    <div className="relative ">
                         <header className="">
                             <nav className={`border-b relative } `}>
-                                <div className="flex items-center justify-between py-4 px-6  relative ">
+                                <div className="flex items-center justify-between py-4 px-6   ">
                                     <h1 className="text-2xl font-bold">Chitchatly</h1>
                                     <div onClick={() => setIsHide(!isHide)} className="md:hidden"><span><IoIosMenu /></span></div>
                                     <div className="flex items-center w-1/3">
                                         <input onChange={handlHeaderesearch} type="text" name="" id="" placeholder=" Search a Friend" className="min-w-[220px] w-full border outline-0 py-2 px-3" />
                                     </div>
-                                    <div onClick={() => setShow(!show)} className="logo">
-                                        <button><img src="/user.png" alt="" className="w-12 h-12 rounded-full" /> </button>
+                                    <div onClick={() => setShow(!show)} className="logo ">
+                                        <button><img src={user.photoURL ? user.photoURL :'/user.png'} alt="" className="w-12 h-12 rounded-full" /> </button>
+                                        <div className={` z-50 w-[365px] px-6 absolute top-full left-1/2 -translate-x-1/2 bg-slate-400  ${userfilterTop.length > 3 ? 'h-[235px] overflow-y-scroll' : ''}`}>
+                                        {userfilterTop.map((item, idx) => (
+                                            <div key={idx} className="flex items-center justify-between gap-3  border-b border-b-[#d1d1d1] hover:text-[#077fbb]  hover:bg-gray-200  transition-all duration-500  border-t-[none] py-3">
+                                                <div>
+                                                    <div className="w-8 h-8 rounded-full">
+                                                        <img
+                                                            className="w-full h-full object-cover rounded-full "
+                                                            src={data.photoURL ? data.photoURL :'/user.png'}
+                                                        />
+                                                    </div>
+                                                </div>
+                                                <h3 className="text-center mx-auto">{item.username.slice(0, 16)}</h3>
+
+                                                <div className="p-2">
+                                                    {friendlist.includes(item.userid + data.uid) ||
+                                                        friendlist.includes(data.uid + item.userid) ? (
+                                                        <p className="text-[#166324] bg-slate-200 p-1 text-sm text-center rounded-sm">Frend</p>
+                                                    ) : friendrequestlist.includes(item.userid + data.uid) ||
+                                                        friendrequestlist.includes(data.uid + item.userid) ? (
+                                                        <p className="text-red-600 text-lg text-center"><MdCancel /></p>
+                                                    ) : (
+
+                                                        <p
+                                                            onClick={() => handlefriendrequest(item)}
+                                                            className="text-[#214035] text-lg text-center"
+                                                        >
+                                                            <MdOutlinePersonAddAlt />
+                                                        </p>
+                                                    )}
+                                                </div>
+
+                                            </div>
+                                        ))}
+                                    </div>
                                     </div>
 
                                     <div
@@ -353,38 +394,40 @@ const Home = () => {
 
                                         <ul className="space-y-3 flex-1 mt-6">
                                             <h2>{user?.displayName}</h2>
-                                            <li>
+                                           
+                               
+                                            {/* <li>
                                                 <Link className="text-black hover:text-[#077fbb] text-sm flex items-center hover:bg-gray-200 rounded px-4 py-3 transition-all relative">
                                                     <IoMdNotificationsOutline className="w-[18px] h-[18px] text-lg mr-4" />
                                                     <span>Notification</span>
                                                     <span className="bg-red-400 w-[18px] h-[18px] flex items-center justify-center text-white text-[11px] font-bold ml-auto rounded-full">7</span>
                                                 </Link>
-                                            </li>
-                                            <li>
+                                            </li> */}
+                                            {/* <li  onClick={() => setOpen(true)}>
                                                 <Link className="text-black hover:text-[#077fbb] text-sm flex items-center hover:bg-gray-200 rounded px-4 py-3 transition-all">
                                                     <CgProfile className="w-[18px] h-[18px] mr-4 text-lg" />
-                                                    <span className="capitalize">Profile</span>
+                                                    <span className="capitalize">Views Profile</span>
                                                 </Link>
-                                            </li>
-                                            <li>
+                                            </li> */}
+                                            <li onClick={() => setIsOpen(true)} >
                                                 <Link className="text-black hover:text-[#077fbb] text-sm flex items-center hover:bg-gray-200 rounded px-4 py-3 transition-all">
                                                     <LuContact2 className="w-[18px] h-[18px] mr-4 text-lg" />
-                                                    <span className="capitalize">contact</span>
+                                                    <span className="capitalize"> update profile</span>
                                                 </Link>
                                             </li>
-                                            <li>
+                                            <li onClick={() => setIsOpenpass(true)}>
                                                 <Link className="text-black hover:text-[#077fbb] text-sm flex items-center hover:bg-gray-200 rounded px-4 py-3 transition-all">
-                                                    <AiTwotoneMessage className="w-[18px] h-[18px] mr-4 text-lg" />
-                                                    <span className="capitalize">Message</span>
+                                                    <TbPasswordUser className="w-[18px] h-[18px] mr-4 text-lg" />
+                                                    <span className="capitalize"> password change</span>
                                                 </Link>
                                             </li>
 
-                                            <li>
+                                            {/* <li>
                                                 <Link className="text-black hover:text-[#077fbb] text-sm flex items-center hover:bg-gray-200 rounded px-4 py-3 transition-all">
                                                     <LuPhoneCall className="w-[18px] h-[18px] mr-4 text-lg" />
                                                     <span className="capitalize">call</span>
                                                 </Link>
-                                            </li>
+                                            </li> */}
 
                                             <li onClick={logOut}>
                                                 <Link className="text-black hover:text-[#077fbb] text-sm flex items-center hover:bg-gray-200 rounded px-4 py-3 transition-all">
@@ -395,63 +438,31 @@ const Home = () => {
                                             </li>
                                         </ul>
                                     </div>
+                                    
                                 </div>
-                                <div className={` z-50 w-[365px] px-6 absolute top-full left-1/2 -translate-x-1/2 bg-slate-400  ${userfilterTop.length > 3 ? 'h-[235px] overflow-y-scroll' : ''}`}>
-                                    {userfilterTop.map((item, idx) => (
-                                        <div key={idx} className="flex items-center justify-between gap-3  border-b border-b-[#d1d1d1] hover:text-[#077fbb]  hover:bg-gray-200  transition-all duration-500  border-t-[none] py-3">
-                                            <div>
-                                                <div className="w-8 h-8 rounded-full">
-                                                    <img
-                                                        className="w-full h-full object-cover rounded-full "
-                                                        src={data.photoURL ? data.photoURL : '/user.png'}
-                                                    />
-                                                </div>
-                                            </div>
-                                            <h3>{item.username.slice(0, 16)}</h3>
 
-                                            <div className="p-2">
-                                                {friendlist.includes(item.userid + data.uid) ||
-                                                    friendlist.includes(data.uid + item.userid) ? (
-                                                    <p className="text-[#166324] bg-slate-200 p-1 text-sm text-center rounded-sm">Frend</p>
-                                                ) : friendrequestlist.includes(item.userid + data.uid) ||
-                                                    friendrequestlist.includes(data.uid + item.userid) ? (
-                                                    <p className="text-red-600 text-lg text-center"><MdCancel /></p>
-                                                ) : (
-
-                                                    <p
-                                                        onClick={() => handlefriendrequest(item)}
-                                                        className="text-[#214035] text-lg text-center"
-                                                    >
-                                                        <MdOutlinePersonAddAlt />
-                                                    </p>
-                                                )}
-                                            </div>
-
-                                        </div>
-                                    ))}
-                                </div>
 
                             </nav>
                         </header>
                     </div>
 
-                    <div className=" flex  relative ">
+                    <div className=" flex  relative  overflow-hidden ">
                         {/* md:h-[calc(100vh-87px)] */}
                         <aside className={`bg-[#f7f7f8]  min-w-[260px] py-6 px-4 font-[sans-serif] flex flex-col fixed top-[87px] md:top-0  transition-all duration-500 ${isHide ? '-left-full' : 'left-0'
                             } md:relative md:left-0`}
                         >
                             <FriendRequest />
                             <Friends />
-                            <Userlist handlefriendrequest={handlefriendrequest} userdata={userdata} friendrequestlist={friendrequestlist} friendlist={friendlist} userfilter={userfilter} handlesearch={handlesearch}/>
+                            <Userlist handlefriendrequest={handlefriendrequest} userdata={userdata} friendrequestlist={friendrequestlist} friendlist={friendlist} userfilter={userfilter} handlesearch={handlesearch} />
                             <BlockUser />
                         </aside>
                         <main className="w-full md:w-[calc(100vw-260px)]    bg-[url('/bg-o.svg')] bg-cover bg-no-repeat flex flex-col justify-end">
                             <div>
                                 {activechatname?.active?.status === "single" ?
                                     (
-                                        <div className="overflow-hidden">
+                                        <div className="overflow-hidden flex flex-col items-stretch">
                                             {/* Chat Header with Friend's Profile */}
-                                            <div className="flex items-center gap-x-2 mb-5 bg-[#232323] py-3 rounded-t-md px-10">
+                                            <div className="flex items-center gap-x-2 mb-5 bg-[#325f49] py-3 rounded-t-md px-10">
                                                 <div className="flex items-center justify-center w-10 h-10 bg-gray-700 rounded-full">
                                                     <img
                                                         className="object-cover w-full h-full rounded-full"
@@ -598,7 +609,7 @@ const Home = () => {
 
                                                                 </div>
                                                             )
-                                                            
+
                                                         }
                                                     </li>
                                                 ))}
@@ -607,14 +618,18 @@ const Home = () => {
                                     )
                                     :
                                     (
-                                        <div className="flex justify-center items-center px-12">
+                                        <div className="flex justify-center items-center px-12 h-[425px]">
                                             <img
-                                                src="/public/no-friend.png"
+                                                src="/no-friend.png"
                                                 alt=""
                                                 className="w-full h-full object-cover"
                                             />
                                         </div>
                                     )}
+                            </div>
+                            <div>
+                            <UpdatePasswordModel isOpen={isOpenpass} setIsOpen={setIsOpenpass} > </UpdatePasswordModel>
+                            <UpdateProfileModal isOpen={isOpen} setIsOpen={setIsOpen} email={user?.email}></UpdateProfileModal>
                             </div>
 
                             {/* <progress value={progress} max="100" /> */}
@@ -669,11 +684,8 @@ const Home = () => {
                         </main>
                     </div >
                 </Container>
-
-
             </div >
 
-        </div>
 
     );
 };

@@ -24,6 +24,7 @@ import { useDispatch } from 'react-redux';
 import { userLoginInfo } from '../Featured/slices/Userslice';
 
 
+
 export const AuthContext = createContext(null)
 
 const auth = getAuth(app)
@@ -35,8 +36,7 @@ const googleProvider = new GoogleAuthProvider()
 const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
-  // const axiosCommon = useAxiosCommon()
- 
+
   let dispatch = useDispatch();
 // ............
 
@@ -173,8 +173,11 @@ const signIn = async (email, password) => {
     setLoading(true);
     try {
       const userCredential = await signInWithPopup(auth, googleProvider);
-      setUser(userCredential.user); // Set the authenticated user
+  
+    setUser(userCredential.user); 
+     // Set the authenticated user
       console.log('Google Sign-in successful!');
+    
       return userCredential.user; // Optionally return user data if needed
     } catch (error) {
       const errorCode = error.code;
@@ -433,6 +436,7 @@ const signIn = async (email, password) => {
     signIn,
     user,
     loading,
+    setLoading,
     signInWithGoogle,
     handleUpdatePassword,
     resetPassword,

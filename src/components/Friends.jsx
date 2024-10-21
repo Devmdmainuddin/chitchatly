@@ -1,5 +1,5 @@
 import  { useEffect, useState } from "react";
-import { BiDotsVerticalRounded } from "react-icons/bi";
+// import { BiDotsVerticalRounded } from "react-icons/bi";
 import { useSelector, useDispatch } from "react-redux";
 
 import {
@@ -19,7 +19,7 @@ const Friends = () => {
   const db = getDatabase();
   const data = useSelector((state) => state.user.userInfo);
   let dispatch = useDispatch();
-  
+
   useEffect(() => {
     const fCountRef = ref(db, "friend/");
     onValue(fCountRef, (snapshot) => {
