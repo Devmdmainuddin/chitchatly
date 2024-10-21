@@ -1,77 +1,78 @@
-import { useEffect, useState } from "react";
-import { BiDotsVerticalRounded } from "react-icons/bi";
-import { getDatabase, ref, onValue, set, push } from "firebase/database";
+import { useState } from "react";
+// import { BiDotsVerticalRounded } from "react-icons/bi";
+// import { getDatabase, ref, onValue, set, push } from "firebase/database";
+import PropTypes from 'prop-types'
 import { useSelector } from "react-redux";
 import { MdCancel, MdOutlinePersonAddAlt } from "react-icons/md";
 import { FaMinus, FaPlus } from "react-icons/fa";
-const Userlist = () => {
-  const db = getDatabase();
+const Userlist = ({userdata,friendrequestlist,friendlist,userfilter,handlesearch,handlefriendrequest}) => {
+  // const db = getDatabase();
   const data = useSelector((state) => state.user.userInfo);
-  const [userdata, setUserdata] = useState([]);
-  const [friendrequestlist, setFriendrequestlist] = useState([]);
-  const [friendlist, setFriendlist] = useState([]);
-  const [userfilter, setUserfilter] = useState([]);
+  // const [userdata, setUserdata] = useState([]);
+  // const [friendrequestlist, setFriendrequestlist] = useState([]);
+  // const [friendlist, setFriendlist] = useState([]);
+  // const [userfilter, setUserfilter] = useState([]);
   const [isOpen, setIsOpen] = useState(false)
 
-  useEffect(() => {
-    const starCountRef = ref(db, "users/");
-    onValue(starCountRef, (snapshot) => {
-      let arr = [];
-      snapshot.forEach((item) => {
-        if (data.uid != item.key) {
-          arr.push({ ...item.val(), userid: item.key });
-        }
-      });
-      setUserdata(arr);
-    });
-  }, [data.uid, db]);
+  // useEffect(() => {
+  //   const starCountRef = ref(db, "users/");
+  //   onValue(starCountRef, (snapshot) => {
+  //     let arr = [];
+  //     snapshot.forEach((item) => {
+  //       if (data.uid != item.key) {
+  //         arr.push({ ...item.val(), userid: item.key });
+  //       }
+  //     });
+  //     setUserdata(arr);
+  //   });
+  // }, [data.uid, db]);
 
-  let handlefriendrequest = (item) => {
-    set(push(ref(db, "friendrequest/")), {
-      sendername: data.displayName,
-      senderid: data.uid,
-      receivername: item.username,
-      receiverid: item.userid,
-    });
-  };
+  // let handlefriendrequest = (item) => {
+  //   set(push(ref(db, "friendrequest/")), {
+  //     sendername: data.displayName,
+  //     senderid: data.uid,
+  //     receivername: item.username,
+  //     receiverid: item.userid,
+  //   });
+  // };
 
-  useEffect(() => {
-    const starCountRef = ref(db, "friendrequest/");
-    onValue(starCountRef, (snapshot) => {
-      let arr = [];
-      snapshot.forEach((item) => {
-        arr.push(item.val().receiverid + item.val().senderid);
-      });
-      setFriendrequestlist(arr);
-    });
-  }, [db]);
+  // useEffect(() => {
+  //   const starCountRef = ref(db, "friendrequest/");
+  //   onValue(starCountRef, (snapshot) => {
+  //     let arr = [];
+  //     snapshot.forEach((item) => {
+  //       arr.push(item.val().receiverid + item.val().senderid);
+  //     });
+  //     setFriendrequestlist(arr);
+  //   });
+  // }, [db]);
 
-  useEffect(() => {
-    const fCountRef = ref(db, "friend/");
-    onValue(fCountRef, (snapshot) => {
-      let arr = [];
-      snapshot.forEach((item) => {
-        arr.push(item.val().receiverid + item.val().senderid);
-      });
-      setFriendlist(arr);
-    });
-  }, [db]);
+  // useEffect(() => {
+  //   const fCountRef = ref(db, "friend/");
+  //   onValue(fCountRef, (snapshot) => {
+  //     let arr = [];
+  //     snapshot.forEach((item) => {
+  //       arr.push(item.val().receiverid + item.val().senderid);
+  //     });
+  //     setFriendlist(arr);
+  //   });
+  // }, [db]);
 
-  let handlesearch = (e) => {
-    let arr = [];
-    if (e.target.value.length == 0) {
-      setUserfilter(arr);
-    } else {
-      userdata.filter((item) => {
-        if (
-          item.username.toLowerCase().includes(e.target.value.toLowerCase())
-        ) {
-          arr.push(item);
-        }
-        setUserfilter(arr);
-      });
-    }
-  };
+  // let handlesearch = (e) => {
+  //   let arr = [];
+  //   if (e.target.value.length == 0) {
+  //     setUserfilter(arr);
+  //   } else {
+  //     userdata.filter((item) => {
+  //       if (
+  //         item.username.toLowerCase().includes(e.target.value.toLowerCase())
+  //       ) {
+  //         arr.push(item);
+  //       }
+  //       setUserfilter(arr);
+  //     });
+  //   }
+  // };
 
   return (
     <>
@@ -160,5 +161,13 @@ const Userlist = () => {
     </>
   );
 };
-
+Userlist.propTypes = {
+  // userdata,friendrequestlist,friendlist,userfilter,handlesearch
+  userdata: PropTypes.array,
+  friendrequestlist: PropTypes.array,
+  friendlist: PropTypes.array,
+  userfilter: PropTypes.array,
+  handlesearch: PropTypes.func,
+  handlefriendrequest: PropTypes.func,
+}
 export default Userlist;

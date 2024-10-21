@@ -13,7 +13,6 @@ import {
     uploadBytesResumable,
 } from "firebase/storage";
 import FriendRequest from "../components/FriendRequest";
-import FriendGropup from "../components/FriendGropup";
 import Friends from "../components/Friends";
 import Userlist from "../components/Userlist";
 import BlockUser from "../components/BlockUser";
@@ -38,24 +37,15 @@ const Home = () => {
     const [userdata, setUserdata] = useState([]);
     const [show, setShow] = useState(false)
     const [userfilter, setUserfilter] = useState([]);
+    const [userfilterTop, setUserfilterTop] = useState([]);
     const [friendrequestlist, setFriendrequestlist] = useState([]);
     const [friendlist, setFriendlist] = useState([]);
     let activechatname = useSelector((state) => state.activeChat);
     const data = useSelector((state) => state.user.userInfo);
-    const [progress, setProgress] = useState(0);
+    // const [progress, setProgress] = useState(0);
     const db = getDatabase()
     const storage = getStorage();
     const choseFile = useRef();
-    // ..............
-    // const addAudioElement = (blob) => {
-    //     if (blob && blob.size > 0) {
-    //         const url = URL.createObjectURL(blob);
-    //         setRecordedUrl(url);
-    //         handleSendAudio(url);
-    //     } else {
-    //         console.error('Invalid blob or recording failed');
-    //     }
-    // };
 
     const handleSendAudio = (blob) => {
         if (!blob || blob.size === 0) {
@@ -63,9 +53,6 @@ const Home = () => {
             return;
         }
         // const url = URL.createObjectURL(blob);
-
-
-        // Define the file name and storage reference
         const audioFileName = `${user.displayName}-audio-${Date.now()}.webm`;
         const storageRef = Ref(storage, `${user.displayName}/sendaudio/${audioFileName}`);
 
@@ -76,7 +63,7 @@ const Home = () => {
             'state_changed',
             (snapshot) => {
                 const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-                setProgress(progress);
+                // setProgress(progress);
             },
             (error) => {
                 console.error('Audio upload error:', error);
@@ -98,7 +85,7 @@ const Home = () => {
                         audio: audioUrl, // Save the audio URL
                         date: new Date().toISOString(),
                     }).then(() => {
-                        setSms(''); // Clear input field after sending
+                        setSms(''); 
                         console.log('Audio message sent successfully');
                     }).catch((error) => {
                         console.error('Error sending audio message:', error);
@@ -184,9 +171,6 @@ const Home = () => {
         });
     }, [activechatname?.active?.id, data?.uid, db]);
 
-    //   message Update from db  
-
-    //  deletes a message from Firebase
 
     const handleDelete = (id) => {
         if (id) {
@@ -228,7 +212,7 @@ const Home = () => {
             "state_changed",
             (snapshot) => {
                 const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-                setProgress(progress);
+                // setProgress(progress);
             },
             (error) => {
                 console.error("Upload error:", error);
@@ -275,7 +259,7 @@ const Home = () => {
             setUserdata(arr);
         });
     }, [data?.uid, db]);
-
+// friendrequest send
     let handlefriendrequest = (item) => {
         set(push(ref(db, "friendrequest/")), {
             sendername: data.displayName,
@@ -285,6 +269,7 @@ const Home = () => {
         });
     };
 
+// friendrequest friend
     useEffect(() => {
         const starCountRef = ref(db, "friendrequest/");
         onValue(starCountRef, (snapshot) => {
@@ -295,7 +280,7 @@ const Home = () => {
             setFriendrequestlist(arr);
         });
     }, [db]);
-
+// friend
     useEffect(() => {
         const fCountRef = ref(db, "friend/");
         onValue(fCountRef, (snapshot) => {
@@ -308,7 +293,7 @@ const Home = () => {
     }, [db]);
 
 
-
+// search
     let handlesearch = (e) => {
         let arr = [];
         if (e.target.value.length == 0) {
@@ -324,7 +309,21 @@ const Home = () => {
             });
         }
     };
-
+    let handlHeaderesearch = (e) => {
+        let arr = [];
+        if (e.target.value.length == 0) {
+            setUserfilterTop(arr);
+        } else {
+            userdata.filter((item) => {
+                if (
+                    item.username.toLowerCase().includes(e.target.value.toLowerCase())
+                ) {
+                    arr.push(item);
+                }
+                setUserfilterTop(arr);
+            });
+        }
+    };
 
 
     // ............................
@@ -334,124 +333,123 @@ const Home = () => {
             <div className="">
 
                 <Container>
-                <div className="relative">
-                <header className="">
-                        <nav className={`border-b relative } `}>
-                            <div className="flex items-center justify-between py-4 px-6  relative ">
-                                <h1 className="text-2xl font-bold">Chitchatly</h1>
-                                <div onClick={() => setIsHide(!isHide)} className="md:hidden"><span><IoIosMenu /></span></div>
-                                <div className="flex items-center w-1/3">
-                                    <input onChange={handlesearch} type="text" name="" id="" placeholder=" Search a Friend" className="min-w-[220px] w-full border outline-0 py-2 px-3" />
-                                </div>
-                                <div onClick={() => setShow(!show)} className="logo">
-                                    <button><img src="/user.png" alt="" className="w-12 h-12 rounded-full" /> </button>
-                                </div>
-
-                                <div
-                                    className={`bg-[#f7f7f8]  min-w-[260px] py-6 px-4 font-[sans-serif] flex flex-col absolute top-full right-0 transition-transform duration-500 ease-in-out ${show ? 'translate-x-0' : 'translate-x-full '}`}
-                                    style={{ transform: `translateX(${show ? '0 ' : '100% '})`, zIndex: 100 }}
-                                >
-
-                                    <ul className="space-y-3 flex-1 mt-6">
-                                        <h2>{user?.displayName}</h2>
-                                        <li>
-                                            <Link className="text-black hover:text-[#077fbb] text-sm flex items-center hover:bg-gray-200 rounded px-4 py-3 transition-all relative">
-                                                <IoMdNotificationsOutline className="w-[18px] h-[18px] text-lg mr-4" />
-                                                <span>Notification</span>
-                                                <span className="bg-red-400 w-[18px] h-[18px] flex items-center justify-center text-white text-[11px] font-bold ml-auto rounded-full">7</span>
-                                            </Link>
-                                        </li>
-                                        <li>
-                                            <Link className="text-black hover:text-[#077fbb] text-sm flex items-center hover:bg-gray-200 rounded px-4 py-3 transition-all">
-                                                <CgProfile className="w-[18px] h-[18px] mr-4 text-lg" />
-                                                <span className="capitalize">Profile</span>
-                                            </Link>
-                                        </li>
-                                        <li>
-                                            <Link className="text-black hover:text-[#077fbb] text-sm flex items-center hover:bg-gray-200 rounded px-4 py-3 transition-all">
-                                                <LuContact2 className="w-[18px] h-[18px] mr-4 text-lg" />
-                                                <span className="capitalize">contact</span>
-                                            </Link>
-                                        </li>
-                                        <li>
-                                            <Link className="text-black hover:text-[#077fbb] text-sm flex items-center hover:bg-gray-200 rounded px-4 py-3 transition-all">
-                                                <AiTwotoneMessage className="w-[18px] h-[18px] mr-4 text-lg" />
-                                                <span className="capitalize">Message</span>
-                                            </Link>
-                                        </li>
-
-                                        <li>
-                                            <Link className="text-black hover:text-[#077fbb] text-sm flex items-center hover:bg-gray-200 rounded px-4 py-3 transition-all">
-                                                <LuPhoneCall className="w-[18px] h-[18px] mr-4 text-lg" />
-                                                <span className="capitalize">call</span>
-                                            </Link>
-                                        </li>
-
-                                        <li onClick={logOut}>
-                                            <Link className="text-black hover:text-[#077fbb] text-sm flex items-center hover:bg-gray-200 rounded px-4 py-3 transition-all">
-
-                                                <IoPowerSharp className="w-[18px] h-[18px] mr-4 text-lg" />
-                                                <span>Logout</span>
-                                            </Link>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </div>
-                            <div className={` z-50 w-[365px] px-6 absolute top-full left-1/2 -translate-x-1/2 bg-slate-400  ${userfilter.length > 3 ? 'h-[235px] overflow-y-scroll' : ''}`}>
-                                {userfilter.map((item, idx) => (
-                                    <div key={idx} className="flex items-center justify-between gap-3  border-b border-b-[#d1d1d1] hover:text-[#077fbb]  hover:bg-gray-200  transition-all duration-500  border-t-[none] py-3">
-                                        <div>
-                                            <div className="w-8 h-8 rounded-full">
-                                                <img
-                                                    className="w-full h-full object-cover rounded-full "
-                                                    src={data.photoURL ? data.photoURL : '/user.png'}
-                                                />
-                                            </div>
-                                        </div>
-                                        <h3>{item.username.slice(0, 16)}</h3>
-
-                                        <div className="p-2">
-                                            {friendlist.includes(item.userid + data.uid) ||
-                                                friendlist.includes(data.uid + item.userid) ? (
-                                                <p className="text-[#166324] bg-slate-200 p-1 text-sm text-center rounded-sm">Frend</p>
-                                            ) : friendrequestlist.includes(item.userid + data.uid) ||
-                                                friendrequestlist.includes(data.uid + item.userid) ? (
-                                                <p className="text-red-600 text-lg text-center"><MdCancel /></p>
-                                            ) : (
-
-                                                <p
-                                                    onClick={() => handlefriendrequest(item)}
-                                                    className="text-[#214035] text-lg text-center"
-                                                >
-                                                    <MdOutlinePersonAddAlt />
-                                                </p>
-                                            )}
-                                        </div>
-
+                    <div className="relative">
+                        <header className="">
+                            <nav className={`border-b relative } `}>
+                                <div className="flex items-center justify-between py-4 px-6  relative ">
+                                    <h1 className="text-2xl font-bold">Chitchatly</h1>
+                                    <div onClick={() => setIsHide(!isHide)} className="md:hidden"><span><IoIosMenu /></span></div>
+                                    <div className="flex items-center w-1/3">
+                                        <input onChange={handlHeaderesearch} type="text" name="" id="" placeholder=" Search a Friend" className="min-w-[220px] w-full border outline-0 py-2 px-3" />
                                     </div>
-                                ))}
-                            </div>
+                                    <div onClick={() => setShow(!show)} className="logo">
+                                        <button><img src="/user.png" alt="" className="w-12 h-12 rounded-full" /> </button>
+                                    </div>
 
-                        </nav>
-                    </header>
+                                    <div
+                                        className={`bg-[#f7f7f8]  min-w-[260px] py-6 px-4 font-[sans-serif] flex flex-col absolute top-full right-0 transition-transform duration-500 ease-in-out ${show ? 'translate-x-0' : 'translate-x-full '}`}
+                                        style={{ transform: `translateX(${show ? '0 ' : '100% '})`, zIndex: 100 }}
+                                    >
+
+                                        <ul className="space-y-3 flex-1 mt-6">
+                                            <h2>{user?.displayName}</h2>
+                                            <li>
+                                                <Link className="text-black hover:text-[#077fbb] text-sm flex items-center hover:bg-gray-200 rounded px-4 py-3 transition-all relative">
+                                                    <IoMdNotificationsOutline className="w-[18px] h-[18px] text-lg mr-4" />
+                                                    <span>Notification</span>
+                                                    <span className="bg-red-400 w-[18px] h-[18px] flex items-center justify-center text-white text-[11px] font-bold ml-auto rounded-full">7</span>
+                                                </Link>
+                                            </li>
+                                            <li>
+                                                <Link className="text-black hover:text-[#077fbb] text-sm flex items-center hover:bg-gray-200 rounded px-4 py-3 transition-all">
+                                                    <CgProfile className="w-[18px] h-[18px] mr-4 text-lg" />
+                                                    <span className="capitalize">Profile</span>
+                                                </Link>
+                                            </li>
+                                            <li>
+                                                <Link className="text-black hover:text-[#077fbb] text-sm flex items-center hover:bg-gray-200 rounded px-4 py-3 transition-all">
+                                                    <LuContact2 className="w-[18px] h-[18px] mr-4 text-lg" />
+                                                    <span className="capitalize">contact</span>
+                                                </Link>
+                                            </li>
+                                            <li>
+                                                <Link className="text-black hover:text-[#077fbb] text-sm flex items-center hover:bg-gray-200 rounded px-4 py-3 transition-all">
+                                                    <AiTwotoneMessage className="w-[18px] h-[18px] mr-4 text-lg" />
+                                                    <span className="capitalize">Message</span>
+                                                </Link>
+                                            </li>
+
+                                            <li>
+                                                <Link className="text-black hover:text-[#077fbb] text-sm flex items-center hover:bg-gray-200 rounded px-4 py-3 transition-all">
+                                                    <LuPhoneCall className="w-[18px] h-[18px] mr-4 text-lg" />
+                                                    <span className="capitalize">call</span>
+                                                </Link>
+                                            </li>
+
+                                            <li onClick={logOut}>
+                                                <Link className="text-black hover:text-[#077fbb] text-sm flex items-center hover:bg-gray-200 rounded px-4 py-3 transition-all">
+
+                                                    <IoPowerSharp className="w-[18px] h-[18px] mr-4 text-lg" />
+                                                    <span>Logout</span>
+                                                </Link>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div className={` z-50 w-[365px] px-6 absolute top-full left-1/2 -translate-x-1/2 bg-slate-400  ${userfilterTop.length > 3 ? 'h-[235px] overflow-y-scroll' : ''}`}>
+                                    {userfilterTop.map((item, idx) => (
+                                        <div key={idx} className="flex items-center justify-between gap-3  border-b border-b-[#d1d1d1] hover:text-[#077fbb]  hover:bg-gray-200  transition-all duration-500  border-t-[none] py-3">
+                                            <div>
+                                                <div className="w-8 h-8 rounded-full">
+                                                    <img
+                                                        className="w-full h-full object-cover rounded-full "
+                                                        src={data.photoURL ? data.photoURL : '/user.png'}
+                                                    />
+                                                </div>
+                                            </div>
+                                            <h3>{item.username.slice(0, 16)}</h3>
+
+                                            <div className="p-2">
+                                                {friendlist.includes(item.userid + data.uid) ||
+                                                    friendlist.includes(data.uid + item.userid) ? (
+                                                    <p className="text-[#166324] bg-slate-200 p-1 text-sm text-center rounded-sm">Frend</p>
+                                                ) : friendrequestlist.includes(item.userid + data.uid) ||
+                                                    friendrequestlist.includes(data.uid + item.userid) ? (
+                                                    <p className="text-red-600 text-lg text-center"><MdCancel /></p>
+                                                ) : (
+
+                                                    <p
+                                                        onClick={() => handlefriendrequest(item)}
+                                                        className="text-[#214035] text-lg text-center"
+                                                    >
+                                                        <MdOutlinePersonAddAlt />
+                                                    </p>
+                                                )}
+                                            </div>
+
+                                        </div>
+                                    ))}
+                                </div>
+
+                            </nav>
+                        </header>
                     </div>
-                    
+
                     <div className=" flex  relative ">
                         {/* md:h-[calc(100vh-87px)] */}
                         <aside className={`bg-[#f7f7f8]  min-w-[260px] py-6 px-4 font-[sans-serif] flex flex-col fixed top-[87px] md:top-0  transition-all duration-500 ${isHide ? '-left-full' : 'left-0'
                             } md:relative md:left-0`}
                         >
                             <FriendRequest />
-                            <FriendGropup />
                             <Friends />
-                            <Userlist />
+                            <Userlist handlefriendrequest={handlefriendrequest} userdata={userdata} friendrequestlist={friendrequestlist} friendlist={friendlist} userfilter={userfilter} handlesearch={handlesearch}/>
                             <BlockUser />
                         </aside>
-                        <main className="w-full md:w-[calc(100vw-260px)] h-screen   bg-[url('/bg-o.svg')] bg-cover bg-no-repeat flex flex-col justify-end">
+                        <main className="w-full md:w-[calc(100vw-260px)]    bg-[url('/bg-o.svg')] bg-cover bg-no-repeat flex flex-col justify-end">
                             <div>
                                 {activechatname?.active?.status === "single" ?
                                     (
-                                        <div>
+                                        <div className="overflow-hidden">
                                             {/* Chat Header with Friend's Profile */}
                                             <div className="flex items-center gap-x-2 mb-5 bg-[#232323] py-3 rounded-t-md px-10">
                                                 <div className="flex items-center justify-center w-10 h-10 bg-gray-700 rounded-full">
@@ -467,87 +465,141 @@ const Home = () => {
                                             </div>
 
                                             {/* Message List */}
-                                            <ul>
+                                            <ul className="h-screen overflow-y-scroll relative">
                                                 {message.map((msg, index) => (
                                                     <li key={index} className="my-6">
                                                         {/* Check if it's the current user's message */}
-                                                        {msg.sendarId === user.uid ? (
-                                                            <div className="flex gap-2 justify-end">
-                                                                {msg.image ?
-                                                                    (
-                                                                        <div className="flex flex-col items-end mb-2">
-                                                                            <img src={msg.image} className="w-[100px] h-[100px] object-cover" />
-                                                                            <span className="text-white text-xs mt-1">{new Date(msg.date).toLocaleString("en-US", {
-                                                                                year: "numeric",
-                                                                                month: "long",
-                                                                                day: "numeric",
-                                                                                hour: "2-digit",
-                                                                                minute: "2-digit",
-                                                                                hour12: true,
-                                                                            })}</span>
-                                                                        </div>
-                                                                    )
-                                                                    :
-                                                                    msg.audio ? (<audio controls>
-                                                                        <source src={msg.audio} type="audio/webm" />
-                                                                        Your browser does not support the audio element.
-                                                                    </audio>)
-                                                                        :
+                                                        {msg.sendarId === user.uid ?
+                                                            (
+                                                                <div className="flex gap-2 justify-end">
+                                                                    {msg.image ?
                                                                         (
-                                                                            <div className="">
-                                                                                <p className="bg-slate-200 text-[#262626] p-3 rounded-2xl ">
-                                                                                    {msg.message}
-                                                                                </p>
-                                                                                <div className="text-xs text-gray-500">
-                                                                                    {new Date(msg.date).toLocaleString("en-US", {
-                                                                                        year: "numeric",
-                                                                                        month: "long",
-                                                                                        day: "numeric",
-                                                                                        hour: "2-digit",
-                                                                                        minute: "2-digit",
-                                                                                        hour12: true,
-                                                                                    })}
-                                                                                </div>
-                                                                                <div className="flex gap-2">
-                                                                                    <button onClick={() => handleEdit({ ...msg, id: msg.id })}>
-                                                                                        <CiEdit className="text-[#f9f9f9] text-xl" />
-                                                                                    </button>
-                                                                                    <button onClick={() => handleDelete(msg.id)}><RiChatDeleteFill className="text-red-600 text-xl" /></button>
-                                                                                </div>
+                                                                            <div className="flex flex-col items-end mb-2">
+                                                                                <img src={msg.image} className="w-[100px] h-[100px] object-cover" />
+                                                                                <span className="text-white text-xs mt-1">{new Date(msg.date).toLocaleString("en-US", {
+                                                                                    year: "numeric",
+                                                                                    month: "long",
+                                                                                    day: "numeric",
+                                                                                    hour: "2-digit",
+                                                                                    minute: "2-digit",
+                                                                                    hour12: true,
+                                                                                })}</span>
                                                                             </div>
-                                                                        )}
+                                                                        )
+                                                                        :
+                                                                        msg.audio ? (<audio controls>
+                                                                            <source src={msg.audio} type="audio/webm" />
+                                                                            Your browser does not support the audio element.
+                                                                        </audio>)
+                                                                            :
+                                                                            (
+                                                                                <div className="">
+                                                                                    <p className="bg-slate-200 text-[#262626] p-3 rounded-2xl ">
+                                                                                        {msg.message}
+                                                                                    </p>
+                                                                                    <div className="text-xs text-gray-500">
+                                                                                        {new Date(msg.date).toLocaleString("en-US", {
+                                                                                            year: "numeric",
+                                                                                            month: "long",
+                                                                                            day: "numeric",
+                                                                                            hour: "2-digit",
+                                                                                            minute: "2-digit",
+                                                                                            hour12: true,
+                                                                                        })}
+                                                                                    </div>
+                                                                                    <div className="flex gap-2">
+                                                                                        <button onClick={() => handleEdit({ ...msg, id: msg.id })}>
+                                                                                            <CiEdit className="text-[#f9f9f9] text-xl" />
+                                                                                        </button>
+                                                                                        <button onClick={() => handleDelete(msg.id)}><RiChatDeleteFill className="text-red-600 text-xl" /></button>
+                                                                                    </div>
+                                                                                </div>
+                                                                            )}
 
-
-                                                            </div>
-                                                        ) : (
-                                                            <div className="flex gap-2 justify-start">
-                                                                <div className="">
-                                                                    <p className="bg-gray-700 text-white p-3 rounded-2xl">
-                                                                        {msg.message}
-                                                                    </p>
-                                                                    <div className="text-xs text-gray-500">
-                                                                        {new Date(msg.date).toLocaleString("en-US", {
-                                                                            year: "numeric",
-                                                                            month: "long",
-                                                                            day: "numeric",
-                                                                            hour: "2-digit",
-                                                                            minute: "2-digit",
-                                                                            hour12: true,
-                                                                        })}
-                                                                    </div>
-
-
-                                                                    <div className="flex gap-2">
-                                                                        {/* <button onClick={() => handleEdit({ ...msg, id: msg.id })}>
-                                                    <CiEdit className="text-[#f9f9f9] text-xl" />
-                                                </button>
-                                                <button onClick={() => handleDelete(msg.id)}><RiChatDeleteFill className="text-red-600 text-xl" /></button>
-                                             */}
-                                                                    </div>
 
                                                                 </div>
-                                                            </div>
-                                                        )}
+                                                            )
+                                                            :
+                                                            //             (
+                                                            //                 <div className="flex gap-2 justify-start">
+                                                            //                     <div className="">
+                                                            //                         <p className="bg-gray-700 text-white p-3 rounded-2xl">
+                                                            //                             {msg.message}
+                                                            //                         </p>
+                                                            //                         <div className="text-xs text-gray-500">
+                                                            //                             {new Date(msg.date).toLocaleString("en-US", {
+                                                            //                                 year: "numeric",
+                                                            //                                 month: "long",
+                                                            //                                 day: "numeric",
+                                                            //                                 hour: "2-digit",
+                                                            //                                 minute: "2-digit",
+                                                            //                                 hour12: true,
+                                                            //                             })}
+                                                            //                         </div>
+
+
+                                                            //                         <div className="flex gap-2">
+                                                            //                             {/* <button onClick={() => handleEdit({ ...msg, id: msg.id })}>
+                                                            //         <CiEdit className="text-[#f9f9f9] text-xl" />
+                                                            //     </button>
+                                                            //     <button onClick={() => handleDelete(msg.id)}><RiChatDeleteFill className="text-red-600 text-xl" /></button>
+                                                            //  */}
+                                                            //                         </div>
+
+                                                            //                     </div>
+                                                            //                 </div>
+                                                            //             )
+                                                            (
+                                                                <div className="flex gap-2 justify-start">
+                                                                    {msg.image ?
+                                                                        (
+                                                                            <div className="flex flex-col items-end mb-2">
+                                                                                <img src={msg.image} className="w-[100px] h-[100px] object-cover" />
+                                                                                <span className="text-white text-xs mt-1">{new Date(msg.date).toLocaleString("en-US", {
+                                                                                    year: "numeric",
+                                                                                    month: "long",
+                                                                                    day: "numeric",
+                                                                                    hour: "2-digit",
+                                                                                    minute: "2-digit",
+                                                                                    hour12: true,
+                                                                                })}</span>
+                                                                            </div>
+                                                                        )
+                                                                        :
+                                                                        msg.audio ? (<audio controls>
+                                                                            <source src={msg.audio} type="audio/webm" />
+                                                                            Your browser does not support the audio element.
+                                                                        </audio>)
+                                                                            :
+                                                                            (
+                                                                                <div className="">
+                                                                                    <p className="bg-slate-200 text-[#262626] p-3 rounded-2xl ">
+                                                                                        {msg.message}
+                                                                                    </p>
+                                                                                    <div className="text-xs text-gray-500">
+                                                                                        {new Date(msg.date).toLocaleString("en-US", {
+                                                                                            year: "numeric",
+                                                                                            month: "long",
+                                                                                            day: "numeric",
+                                                                                            hour: "2-digit",
+                                                                                            minute: "2-digit",
+                                                                                            hour12: true,
+                                                                                        })}
+                                                                                    </div>
+                                                                                    <div className="flex gap-2">
+                                                                                        <button onClick={() => handleEdit({ ...msg, id: msg.id })}>
+                                                                                            <CiEdit className="text-[#f9f9f9] text-xl" />
+                                                                                        </button>
+                                                                                        <button onClick={() => handleDelete(msg.id)}><RiChatDeleteFill className="text-red-600 text-xl" /></button>
+                                                                                    </div>
+                                                                                </div>
+                                                                            )}
+
+
+                                                                </div>
+                                                            )
+                                                            
+                                                        }
                                                     </li>
                                                 ))}
                                             </ul>
@@ -557,15 +609,15 @@ const Home = () => {
                                     (
                                         <div className="flex justify-center items-center px-12">
                                             <img
-                                                src="/public/bg.svg"
+                                                src="/public/no-friend.png"
                                                 alt=""
-                                                className="w-full h-[250px] object-cover"
+                                                className="w-full h-full object-cover"
                                             />
                                         </div>
                                     )}
                             </div>
 
-                            <progress value={progress} max="100" />
+                            {/* <progress value={progress} max="100" /> */}
                             <div>
                                 <div className="flex items-center gap-1 w-1/2 justify-center mx-auto py-6">
                                     <div>

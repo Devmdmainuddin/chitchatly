@@ -19,6 +19,7 @@ const Friends = () => {
   const db = getDatabase();
   const data = useSelector((state) => state.user.userInfo);
   let dispatch = useDispatch();
+  
   useEffect(() => {
     const fCountRef = ref(db, "friend/");
     onValue(fCountRef, (snapshot) => {
